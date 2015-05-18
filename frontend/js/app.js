@@ -10,7 +10,7 @@ angular.module('yjsEditor', ['op.live-conference'])
           $('#multiparty-conference').css('width', '100%');
           $('#editor-wrapper').css({
             display: 'none',
-            width: percent}
+            width: percent+'%'}
           );
         }
         else {
