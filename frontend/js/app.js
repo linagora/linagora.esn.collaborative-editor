@@ -1,27 +1,36 @@
+'use strict';
 
 angular.module('yjsEditor', ['op.live-conference'])
-.directive('liveConferenceEditorController', [function() {
-    function controller($scope) {
-      $scope.editorVisible = false;
-      $scope.quill = false;
-      $scope.showEditor = function() {
-        var percent = 70;
-        if ($scope.editorVisible) {
-          $('#multiparty-conference').css('width', '100%');
-          $('#editor-wrapper').css({
-            display: 'none',
-            width: percent+'%'}
-          );
-        }
-        else {
-          $('#multiparty-conference').css('width', (100-percent)+'%');
-          $('#editor-wrapper').css('display', 'block');
-        }
-        $scope.editorVisible = !$scope.editorVisible;
+  .service('properties', function() {
+    var quill = false;
 
-        if ($scope.quill === false) {
-          console.log('Creating editor instance');
-          $scope.quill = new Quill('#editor',{
+    return function() {
+      return {
+        quill: quill
+      };
+    };
+  })
+  .directive('liveConferenceEditorController', ['properties', '$rootScope', function() {
+    function link(properties, $scope, $rootScope) {
+      properties.editor_visible = false;
+      $scope.properties = properties;
+      function showEditor() {
+        $rootScope.$emit('paneSize', 70);
+        properties.editor_visible = true;
+      }
+      function hideEditor() {
+        $rootScope.$emit('paneSize', 100);
+        properties.editor_visible = false;
+      }
+      $scope.toggleEditor = function() {
+        if (properties.editor_visible) {
+          hideEditor();
+        } else {
+          showEditor();
+        }
+
+        if (!properties.quill) {
+          properties.quill = new window.Quill('#editor', {
             modules: {
               'multi-cursor': true,
               'link-tooltip': true,
@@ -32,16 +41,25 @@ angular.module('yjsEditor', ['op.live-conference'])
           });
         }
       };
+      $scope.closeEditor = function() {
+        if (properties.quill) {
+          properties.quill.destroy();
+        }
+        hideEditor();
+
+      };
     }
     return {
       restrict: 'A',
       require: 'liveConference',
-      controller: controller
-    }
-  }]).directive('liveConferenceEditor', [function() {
+      link: link
+    };
+  }])
+  .directive('liveConferenceEditor', [function() {
     function controller($scope) {
       $scope.colors = ['red', 'green', 'blue', 'yellow', 'black', 'white'];
-    };
+      $scope.quill = false;
+    }
 
     return {
       controller: controller,
@@ -55,6 +73,6 @@ angular.module('yjsEditor', ['op.live-conference'])
       restrict: 'E',
       require: 'liveConference',
       replace: 'true',
-      template: '<li live-conference-editor-controller><a href="" ng-click="toggleEditor()">ToggleEditor</a></li>'
-    }
+      templateUrl: 'yjs/views/button.html'
+    };
   }]);

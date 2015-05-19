@@ -17,7 +17,7 @@
     "tests"
   ],
   "dependencies": {
-    "quill": "~0.19.12",
+    "quill": "0.19.12",
     "yjs": "master",
     "y-list": "https://github.com/y-js/y-list.git",
     "y-richtext": "https://github.com/y-js/y-richtext.git",

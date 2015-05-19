@@ -1,18 +1,27 @@
-#editor-wrapper {
+.editor-wrapper {
   width: 70%;
   height: 100%;
   z-index: 5;
   position: absolute;
-  display: none;
   right: 0;
   background-color: white;
   padding: 0 10px;
 
-  #toolbar {
+  .toolbar {
     border-bottom: 1px solid grey;
   }
-  #editor {
+  .editor {
     background-color: ghostwhite;
     box-shadow: 2px 2px 5px 0 rgba(0,0,0,0.3)
   }
+}
+
+.editing {
+  color: green;
+}
+.no-editing {
+  color: white;
+}
+.editor-action-button i{
+  width: 24px;
 }
