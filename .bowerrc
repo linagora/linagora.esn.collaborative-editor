@@ -1,4 +1,4 @@
 {
-  "directory": "third_party/",
+  "directory": "frontend/components",
   "analytics": false
 }
