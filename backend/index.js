@@ -21,12 +21,17 @@ var AwesomeYjsModule = new AwesomeModule('linagora.esn.text-editor', {
 
       // Inject extra dependencies
       var depList = {
-        js: ["../quill/dist/quill.js", "yjs/y.js", "y-list/y-list.js",
+        js: ["quill/dist/quill.js", "yjs/y.js", "y-list/y-list.js",
           "y-selections/y-selections.js", "y-richtext/y-richtext.js"],
-        css: ["quill/dist/quill.snow.css", "editor.css"]
+        css: ["../components/quill/dist/quill.snow.css", "editor.css"]
       };
-      webserver.injectJS('third_party', depList.js, ['live-conference'])
-      webserver.injectCSS('third_party', depList.js, ['live-conference']);
+
+      var i = 0;
+      for (i = 0; i < depList.js.length; i++) {
+        depList.js[i] = "../components/" + depList.js[i];
+      }
+      webserver.injectJS('yjs', depList.js, ['live-conference'])
+      webserver.injectCSS('yjs', depList.css, ['live-conference']);
 
       webserver.addApp('yjs', app);
       return callback(null, {});

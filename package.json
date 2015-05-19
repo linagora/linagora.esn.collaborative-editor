@@ -1,0 +1,19 @@
+{
+  "name": "awesome-collaborative-editor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "bower": "^1.4.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "postinstall": "./node_modules/bower/bin/bower install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://ccadiou@ci.open-paas.org/stash/scm/~ccadiou/awesome-collaborative-editor.git"
+  },
+  "author": "Linagora Folks",
+  "license": "AGPL-3.0"
+}
