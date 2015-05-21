@@ -5,7 +5,8 @@ var Dependency = AwesomeModule.AwesomeModuleDependency;
 
 var AwesomeYjsModule = new AwesomeModule('linagora.esn.text-editor', {
   dependencies: [
-    new Dependency(Dependency.TYPE_NAME, 'webserver.wrapper', 'webserver-wrapper')
+    new Dependency(Dependency.TYPE_NAME, 'webserver.wrapper', 'webserver-wrapper'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.yjs', 'yjs')
   ],
   states: {
     lib: function(dependencies, callback) {
