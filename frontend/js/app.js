@@ -1,17 +1,45 @@
 'use strict';
 
-angular.module('yjsEditor', ['op.live-conference'])
+function create_editor() {
+  return new Quill('#editor',{
+    modules: {
+      'multi-cursor': true,
+      'link-tooltip': true,
+      'image-tooltip': true,
+      'toolbar': {container: '#toolbar'}
+    },
+    theme: 'snow'
+  });
+}
+
+function bind_editor_to_yjs(editor, connector, y) {
+  connector.whenSynced(function() {
+    y.observe(function (events) {
+      for (i in events) {
+        if (events[i].name === 'editor') {
+          y.val('editor').bind('QuillJs', editor);
+        }
+      }
+    });
+    if (y.val('editor') === undefined) {
+      y.val('editor', new Y.RichText('QuillJs', editor));
+    } else {
+      y.val('editor').bind('QuillJs', editor);
+    }
+  });
+}
+angular.module('collaborative-editor', ['op.live-conference'])
   .service('properties', function() {
     var quill = false;
 
     return function() {
       return {
-        quill: quill
+        quill: quill,
       };
     };
   })
-  .directive('liveConferenceEditorController', ['properties', '$rootScope', function() {
-    function link(properties, $scope, $rootScope) {
+  .directive('liveConferenceEditorController', ['properties', '$rootScope', 'yjsService', function() {
+    function link(properties, $scope, $rootScope, yjsService) {
       properties.editor_visible = false;
       $scope.properties = properties;
       function showEditor() {
@@ -30,17 +58,17 @@ angular.module('yjsEditor', ['op.live-conference'])
         }
 
         if (!properties.quill) {
-          properties.quill = new window.Quill('#editor', {
-            modules: {
-              'multi-cursor': true,
-              'link-tooltip': true,
-              'image-tooltip': true,
-              'toolbar': {container: '#toolbar'}
-            },
-            theme: 'snow'
-          });
+          properties.quill = create_editor();
+          var ret = yjsService();
+          properties.y = ret.y;
+          console.log('yjs', properties.y);
+          properties.connector = ret.connector;
+          bind_editor_to_yjs(properties.quill, properties.connector, properties.y);
         }
       };
+
+      $scope.properties = properties;
+
       $scope.closeEditor = function() {
         if (properties.quill) {
           properties.quill.destroy();
@@ -52,8 +80,8 @@ angular.module('yjsEditor', ['op.live-conference'])
     return {
       restrict: 'A',
       require: 'liveConference',
-      link: link
-    };
+      controller: link
+    }
   }])
   .directive('liveConferenceEditor', [function() {
     function controller($scope) {
