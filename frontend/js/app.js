@@ -15,11 +15,11 @@ angular.module('yjsEditor', ['op.live-conference'])
       properties.editor_visible = false;
       $scope.properties = properties;
       function showEditor() {
-        $rootScope.$emit('paneSize', 70);
+        $rootScope.$emit('paneSize', {width: 70});
         properties.editor_visible = true;
       }
       function hideEditor() {
-        $rootScope.$emit('paneSize', 100);
+        $rootScope.$emit('paneSize', {width: 100});
         properties.editor_visible = false;
       }
       $scope.toggleEditor = function() {
