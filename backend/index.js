@@ -22,15 +22,10 @@ var AwesomeYjsModule = new AwesomeModule('linagora.esn.text-editor', {
 
       // Inject extra dependencies
       var depList = {
-        js: ['quill/dist/quill.js', 'yjs/y.js', 'y-list/y-list.js',
-          'y-selections/y-selections.js', 'y-richtext/y-richtext.js'],
+        js: ['../components/quill/dist/quill.js'],
         css: ['../components/quill/dist/quill.snow.css', 'editor.css']
       };
 
-      var i = 0;
-      for (i = 0; i < depList.js.length; i++) {
-        depList.js[i] = '../components/' + depList.js[i];
-      }
       webserver.injectJS('editor', depList.js, ['live-conference']);
       webserver.injectCSS('editor', depList.css, ['live-conference']);
 

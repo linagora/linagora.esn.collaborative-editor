@@ -1,7 +1,7 @@
 'use strict';
 
 function create_editor() {
-  return new Quill('#editor',{
+  return new window.Quill('#editor', {
     modules: {
       'multi-cursor': true,
       'link-tooltip': true,
@@ -14,15 +14,15 @@ function create_editor() {
 
 function bind_editor_to_yjs(editor, connector, y) {
   connector.whenSynced(function() {
-    y.observe(function (events) {
-      for (i in events) {
+    y.observe(function(events) {
+      for (var i in events) {
         if (events[i].name === 'editor') {
           y.val('editor').bind('QuillJs', editor);
         }
       }
     });
     if (y.val('editor') === undefined) {
-      y.val('editor', new Y.RichText('QuillJs', editor));
+      y.val('editor', new window.Y.RichText('QuillJs', editor));
     } else {
       y.val('editor').bind('QuillJs', editor);
     }
@@ -34,7 +34,7 @@ angular.module('collaborative-editor', ['op.live-conference'])
 
     return function() {
       return {
-        quill: quill,
+        quill: quill
       };
     };
   })
@@ -47,7 +47,7 @@ angular.module('collaborative-editor', ['op.live-conference'])
         properties.editor_visible = true;
       }
       function hideEditor() {
-        $rootScope.$emit('paneSize', {width: 100});
+        $rootScope.$emit('paneSize', {width: 0});
         properties.editor_visible = false;
       }
       $scope.toggleEditor = function() {
@@ -81,7 +81,7 @@ angular.module('collaborative-editor', ['op.live-conference'])
       restrict: 'A',
       require: 'liveConference',
       controller: link
-    }
+    };
   }])
   .directive('liveConferenceEditor', [function() {
     function controller($scope) {
@@ -102,5 +102,5 @@ angular.module('collaborative-editor', ['op.live-conference'])
       require: 'liveConference',
       replace: 'true',
       templateUrl: 'editor/views/button.html'
-    }
+    };
   }]);
