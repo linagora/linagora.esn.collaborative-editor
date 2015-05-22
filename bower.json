@@ -17,6 +17,7 @@
     "tests"
   ],
   "dependencies": {
-    "quill": "0.19.12"
+    "quill": "0.19.12",
+    "angular-resizable": "~1.1.0"
   }
 }

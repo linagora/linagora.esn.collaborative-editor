@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('collaborative-editor', ['op.live-conference'])
+angular.module('collaborative-editor', ['op.live-conference', 'angularResizable'])
   .service('properties', function() {
     var quill = false;
     return function() {
@@ -86,10 +86,15 @@ angular.module('collaborative-editor', ['op.live-conference'])
       link: link
     };
     }])
-  .directive('liveConferenceEditor', [function() {
-    function controller($scope) {
+  .directive('liveConferenceEditor', ['$rootScope', function() {
+    function controller($scope, $rootScope) {
       $scope.colors = ['red', 'green', 'blue', 'yellow', 'black', 'white'];
       $scope.quill = false;
+      $scope.$on('angular-resizable.resizeEnd', function(event, args) {
+        var paneWidth = 100 * args.width / $(window).width();
+        console.log(paneWidth);
+        $rootScope.$emit('paneSize', {width: paneWidth});
+      });
     }
 
     return {
