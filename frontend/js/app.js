@@ -39,10 +39,10 @@ angular.module('collaborative-editor', ['op.live-conference'])
           y.val('editor').bind('QuillJs', editor);
         }
       });
-    }
+    };
   })
-  .directive('liveConferenceEditorController', ['properties', '$rootScope', 'yjsService', 'editorService', 'bindEditorService',
-    function(properties, $rootScope, yjsService, editorService, bindEditorService) {
+  .directive('liveConferenceEditorController', ['properties', '$rootScope', 'yjsService', 'editorService', 'bindEditorService', '$log',
+    function(properties, $rootScope, yjsService, editorService, bindEditorService, $log) {
       function link(scope) {
         properties.editor_visible = false;
         scope.properties = properties;
@@ -65,8 +65,8 @@ angular.module('collaborative-editor', ['op.live-conference'])
             properties.quill = editorService();
             var ret = yjsService();
             properties.y = ret.y;
-            console.log('yjs', properties.y);
             properties.connector = ret.connector;
+            $log.info('Editor objects', properties.y, properties.connector, properties.quill);
             bindEditorService(properties.quill, properties.connector, properties.y);
           }
         };
