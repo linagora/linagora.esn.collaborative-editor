@@ -2,7 +2,6 @@
 
 var express = require('express');
 var FRONTEND_PATH = require('./constants').FRONTEND_PATH;
-
 module.exports = function(dependencies) {
 
   var application = express();

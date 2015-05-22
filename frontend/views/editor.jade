@@ -1,3 +1,47 @@
-//
-   Created by ccc on 07/05/15.
-
+#editor-wrapper.editor-wrapper(ng-show='properties.editor_visible')
+  #toolbar.toolbar
+    span.ql-format-group
+      select.ql-font(title='Font')
+        option(value='sans-serif', selected='') Sans Serif
+        option(value='serif') Serif
+        option(value='monospace') Monospace
+       select.ql-size(title='Size')
+         option(value='10px') Small
+         option(value='13px', selected='') Normal
+         option(value='18px') Large
+         option(value='32px') Huge
+    span.ql-format-group
+      span.ql-format-button.ql-bold(title='Bold')
+      span.ql-format-separator
+      span.ql-format-button.ql-italic(title='Italic')
+      span.ql-format-separator
+      span.ql-format-button.ql-underline(title='Underline')
+      span.ql-format-separator
+      span.ql-format-button.ql-strike(title='Strikethrough')
+    span.ql-format-group
+      select.ql-color(title='Text Color')
+        option(ng-repeat="color in colors" value="{{color}}"
+          label="{{color}}" selected="{{color.selected}}")
+      span.ql-format-separator
+      select.ql-background(title='Background Color')
+        option(ng-repeat="color in colors" value="{{color}}"
+          label="{{color}}" selected="{{color.selected}}")
+      span.ql-format-group
+        span.ql-format-button.ql-list(title='List')
+        span.ql-format-separator
+        span.ql-format-button.ql-bullet(title='Bullet')
+        span.ql-format-separator
+        select.ql-align(title='Text Alignment')
+          option(value='left', label='Left', selected='')
+          option(value='center', label='Center')
+          option(value='right', label='Right')
+          option(value='justify', label='Justify')
+    span.ql-format-group
+      span.ql-format-button.ql-link(title='Link')
+      span.ql-format-button.ql-image(title='Image')
+    span.editor-action-button(live-conference-editor-controller)
+      span(ng-click="toggleEditor()")
+        i.fa.fa-caret-square-o-left(style='color:green')
+      span(ng-click="closeEditor()")
+        i.fa.fa-times(style='color:red')
+  #editor.editor
