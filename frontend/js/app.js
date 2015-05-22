@@ -31,7 +31,6 @@ function bind_editor_to_yjs(editor, connector, y) {
 angular.module('collaborative-editor', ['op.live-conference'])
   .service('properties', function() {
     var quill = false;
-
     return function() {
       return {
         quill: quill
@@ -95,7 +94,7 @@ angular.module('collaborative-editor', ['op.live-conference'])
       replace: 'true',
       templateUrl: 'editor/views/editor.html'
     };
-  }]).directive('editorTogglerElement', [
+  }]).directive('editorToggleElement', [
     function() {
     return {
       restrict: 'E',
