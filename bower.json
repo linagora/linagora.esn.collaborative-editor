@@ -18,6 +18,6 @@
   ],
   "dependencies": {
     "quill": "0.19.12",
-    "angular-resizable": "~1.1.0"
+    "angular-resizable": "https://github.com/cphyc/angular-resizable.git#1.1.1"
   }
 }
