@@ -39,9 +39,7 @@
     span.ql-format-group
       span.ql-format-button.ql-link(title='Link')
       span.ql-format-button.ql-image(title='Image')
-    span.editor-action-button(live-conference-editor-controller)
-      span(ng-click="toggleEditor()")
+    span.ql-format-group.editor-action-button(live-conference-editor-controller)
+      span.ql-format-button(ng-click="toggleEditor()")
         i.fa.fa-caret-square-o-left(style='color:green')
-      span(ng-click="closeEditor()")
-        i.fa.fa-times(style='color:red')
   #editor.editor
