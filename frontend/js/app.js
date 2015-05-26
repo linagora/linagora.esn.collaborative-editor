@@ -90,10 +90,15 @@ angular.module('collaborative-editor', ['op.live-conference', 'angularResizable'
     function controller($scope, $rootScope) {
       $scope.colors = ['red', 'green', 'blue', 'yellow', 'black', 'white'];
       $scope.quill = false;
-      $scope.$on('angular-resizable.resizeEnd', function(event, args) {
+      function emitResize(args) {
         var paneWidth = 100 * args.width / $(window).width();
-        console.log(paneWidth);
         $rootScope.$emit('paneSize', {width: paneWidth});
+      }
+      $scope.$on('angular-resizable.resizing', function(event, args) {
+        emitResize(args);
+      });
+      $scope.$on('angular-resizable.resizeEnd', function(event, args) {
+        emitResize(args);
       });
     }
 
