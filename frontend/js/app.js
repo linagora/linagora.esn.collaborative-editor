@@ -23,38 +23,41 @@ angular.module('collaborative-editor', ['op.live-conference', 'angularResizable'
       return quill;
     };
   }])
-  .service('AttachInformationProviderService', ['currentConferenceState', 'attendeeColorsService', function(currentConferenceState, attendeeColorsService){
-    return function(richtextInstance) {
-      richtextInstance.attachProvider('nameProvider', function(rtcId) {
-        var attendee = currentConferenceState.getAttendeeByEasyrtcid(rtcId);
-        return attendee.displayName;
-      });
-      richtextInstance.attachProvider('colorProvider', function(rtcId) {
-        var attendee = currentConferenceState.getAttendeeByEasyrtcid(rtcId);
-        return attendeeColorsService.getColorForAttendeeAtIndex(attendee.index);
-      });
-    };
-  }])
-  .service('bindEditorService', ['AttachInformationProviderService', function(AttachInformationProvider) {
+  .service('AttachInformationProviderService', ['currentConferenceState', 'attendeeColorsService',
+    function(currentConferenceState, attendeeColorsService) {
+      return function(richtextInstance) {
+        richtextInstance.attachProvider('nameProvider', function(rtcId) {
+          var attendee = currentConferenceState.getAttendeeByEasyrtcid(rtcId);
+          return attendee.displayName;
+        });
+        richtextInstance.attachProvider('colorProvider', function(rtcId) {
+          var attendee = currentConferenceState.getAttendeeByEasyrtcid(rtcId);
+          return attendeeColorsService.getColorForAttendeeAtIndex(attendee.index);
+        });
+      };
+    }
+  ])
+  .service('bindEditorService', ['AttachInformationProviderService', function(attachInformationProvider) {
     return function(editor, connector, y) {
+      var richText;
       connector.whenSynced(function() {
         y.observe(function(events) {
           var i;
           for (i in events) {
             if (events[i].name === 'editor') {
-              var richText = y.val('editor');
+              richText = y.val('editor');
               richText.bind('QuillJs', editor);
-              AttachInformationProvider(richText);
+              attachInformationProvider(richText);
             }
           }
         });
         if (y.val('editor') === undefined) {
-          var richText = new window.Y.RichText('QuillJs', editor);
-          AttachInformationProvider(richText);
+          richText = new window.Y.RichText('QuillJs', editor);
+          attachInformationProvider(richText);
           y.val('editor', richText);
         } else {
-          var richText = y.val('editor');
-          AttachInformationProvider(richText);
+          richText = y.val('editor');
+          attachInformationProvider(richText);
           richText.bind('QuillJs', editor);
         }
       });
