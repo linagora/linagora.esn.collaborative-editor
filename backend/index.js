@@ -23,7 +23,7 @@ var AwesomeYjsModule = new AwesomeModule('linagora.esn.text-editor', {
       // Inject extra dependencies
       var depList = {
         js: ['../components/quill/dist/quill.js'],
-        css: ['../components/quill/dist/quill.snow.css', 'editor.css']
+        css: ['editor.css', '../components/quill/dist/quill.snow.css']
       };
 
       webserver.injectJS('editor', depList.js, ['live-conference']);

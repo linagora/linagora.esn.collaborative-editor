@@ -1,5 +1,8 @@
-@color: rgba(0,0,0,0.4);
-@shadows: -1px 0 2px @color;
+@black_shade: rgba(0,0,0,0.4);
+@background_color: #EEE;
+@editor_background_color: #FFF;
+@side_shadows: -1px 0 2px @black_shade;
+@editor_shadows: 0 0 3px @black_shade;
 
 .editor-wrapper {
   width: 70%;
@@ -7,30 +10,33 @@
   z-index: 5;
   position: absolute;
   right: 0;
-  background-color: white;
+  background-color: @background_color;
   padding: 0 10px;
-  box-shadow: @shadows;
+  box-shadow: @side_shadows;
 
-  .toolbar {
-    border-bottom: 1px solid grey;
+  // CSS personalization for quill we use !important to force overriding
+  // of quill color. To fix, awesome modules should support ordering of CSS
+  .ql-picker-label {
+    background-color: @background_color !important;
   }
+
   .editor {
-    background-color: ghostwhite;
+    background-color: @editor_background_color;
+    border-radius: 5px;
     height: 90%;
+    box-shadow: @editor_shadows;
   }
 }
+
+// Customization of angular-resize theme
 .rg-left div {
-  box-shadow: @shadows;
-  background-color: white;
+  box-shadow: @side_shadows;
+  background-color: @background_color;
+  border-radius: 3px 0 0 3px;
+  border-width: 1px;
+  padding: 4px 3px;
 }
 .rg-left span {
-  border-color: @color;
-}
-
-.editing {
-  color: green;
-}
-.no-editing {
-  color: white;
+  border-color: @black_shade;
 }
 

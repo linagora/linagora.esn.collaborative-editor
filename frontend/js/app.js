@@ -9,9 +9,9 @@ angular.module('collaborative-editor', ['op.live-conference', 'angularResizable'
       };
     };
   })
-  .service('editorService', function() {
+  .service('editorService', [function() {
     return function() {
-      return new window.Quill('#editor', {
+      var quill = new window.Quill('#editor', {
         modules: {
           'multi-cursor': true,
           'link-tooltip': true,
@@ -20,27 +20,49 @@ angular.module('collaborative-editor', ['op.live-conference', 'angularResizable'
         },
         theme: 'snow'
       });
+      return quill;
     };
-  })
-  .service('bindEditorService', function() {
+  }])
+  .service('AttachInformationProviderService', ['currentConferenceState', 'attendeeColorsService',
+    function(currentConferenceState, attendeeColorsService) {
+      return function(richtextInstance) {
+        richtextInstance.attachProvider('nameProvider', function(rtcId) {
+          var attendee = currentConferenceState.getAttendeeByEasyrtcid(rtcId);
+          return attendee.displayName;
+        });
+        richtextInstance.attachProvider('colorProvider', function(rtcId) {
+          var attendee = currentConferenceState.getAttendeeByEasyrtcid(rtcId);
+          return attendeeColorsService.getColorForAttendeeAtIndex(attendee.index);
+        });
+      };
+    }
+  ])
+  .service('bindEditorService', ['AttachInformationProviderService', function(attachInformationProvider) {
     return function(editor, connector, y) {
+      var richText;
       connector.whenSynced(function() {
         y.observe(function(events) {
           var i;
           for (i in events) {
             if (events[i].name === 'editor') {
-              y.val('editor').bind('QuillJs', editor);
+              richText = y.val('editor');
+              richText.bind('QuillJs', editor);
+              attachInformationProvider(richText);
             }
           }
         });
         if (y.val('editor') === undefined) {
-          y.val('editor', new window.Y.RichText('QuillJs', editor));
+          richText = new window.Y.RichText('QuillJs', editor);
+          attachInformationProvider(richText);
+          y.val('editor', richText);
         } else {
-          y.val('editor').bind('QuillJs', editor);
+          richText = y.val('editor');
+          attachInformationProvider(richText);
+          richText.bind('QuillJs', editor);
         }
       });
     };
-  })
+  }])
   .directive('liveConferenceEditorController', ['properties', '$rootScope', 'yjsService', 'editorService', 'bindEditorService', '$log',
     function(properties, $rootScope, yjsService, editorService, bindEditorService, $log) {
       function link(scope) {
@@ -67,6 +89,8 @@ angular.module('collaborative-editor', ['op.live-conference', 'angularResizable'
             properties.y = ret.y;
             properties.connector = ret.connector;
             $log.info('Editor objects', properties.y, properties.connector, properties.quill);
+            window.y = ret.y;
+            window.quill = properties.quill;
             bindEditorService(properties.quill, properties.connector, properties.y);
           }
         };
@@ -78,7 +102,6 @@ angular.module('collaborative-editor', ['op.live-conference', 'angularResizable'
             properties.quill.destroy();
           }
           hideEditor();
-
         };
       }
     return {
@@ -108,10 +131,10 @@ angular.module('collaborative-editor', ['op.live-conference', 'angularResizable'
     };
   }]).directive('editorToggleElement', [
     function() {
-    return {
-      restrict: 'E',
-      require: 'liveConference',
-      replace: 'true',
-      templateUrl: 'editor/views/button.html'
-    };
-  }]);
+      return {
+        restrict: 'E',
+        require: 'liveConference',
+        replace: 'true',
+        templateUrl: 'editor/views/button.html'
+      };
+    }]);
