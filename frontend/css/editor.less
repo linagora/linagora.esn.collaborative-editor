@@ -1,3 +1,6 @@
+@color: rgba(0,0,0,0.4);
+@shadows: -1px 0 2px @color;
+
 .editor-wrapper {
   width: 70%;
   height: 100%;
@@ -6,15 +9,22 @@
   right: 0;
   background-color: white;
   padding: 0 10px;
+  box-shadow: @shadows;
 
   .toolbar {
     border-bottom: 1px solid grey;
   }
   .editor {
     background-color: ghostwhite;
-    box-shadow: 2px 2px 5px 0 rgba(0,0,0,0.3);
-    height: 90%
+    height: 90%;
   }
+}
+.rg-left div {
+  box-shadow: @shadows;
+  background-color: white;
+}
+.rg-left span {
+  border-color: @color;
 }
 
 .editing {
@@ -23,6 +33,4 @@
 .no-editing {
   color: white;
 }
-.editor-action-button i{
-  width: 24px;
-}
+
