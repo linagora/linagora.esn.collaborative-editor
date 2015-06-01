@@ -63,11 +63,16 @@ angular.module('collaborative-editor', ['op.live-conference', 'angularResizable'
       });
     };
   }])
-  .directive('liveConferenceEditorController', ['properties', '$rootScope', 'yjsService', 'editorService', 'bindEditorService', '$log',
-    function(properties, $rootScope, yjsService, editorService, bindEditorService, $log) {
+  .constant('initialPaneSize', {
+    width: 70,
+    height: 100
+  })
+  .directive('liveConferenceEditorController', ['properties', '$rootScope',
+    'yjsService', 'editorService', 'bindEditorService', '$log', 'initialPaneSize',
+    function(properties, $rootScope, yjsService, editorService, bindEditorService, $log, initialPaneSize) {
       function link(scope) {
         properties.editor_visible = false;
-        properties.paneSize = {width: 70, height: 100};
+        properties.paneSize = {width: initialPaneSize.width, height: initialPaneSize.height};
         scope.properties = properties;
         function showEditor() {
           $rootScope.$emit('paneSize', {width: properties.paneSize.width});
@@ -110,7 +115,7 @@ angular.module('collaborative-editor', ['op.live-conference', 'angularResizable'
       link: link
     };
     }])
-  .directive('liveConferenceEditor', ['$rootScope','properties', function() {
+  .directive('liveConferenceEditor', ['$rootScope', 'properties', function() {
     function controller($scope, $rootScope, properties) {
       $scope.colors = ['red', 'green', 'blue', 'yellow', 'black', 'white'];
       $scope.quill = false;
