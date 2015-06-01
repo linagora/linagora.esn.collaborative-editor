@@ -67,9 +67,10 @@ angular.module('collaborative-editor', ['op.live-conference', 'angularResizable'
     function(properties, $rootScope, yjsService, editorService, bindEditorService, $log) {
       function link(scope) {
         properties.editor_visible = false;
+        properties.paneSize = {width: 70, height: 100};
         scope.properties = properties;
         function showEditor() {
-          $rootScope.$emit('paneSize', {width: 70});
+          $rootScope.$emit('paneSize', {width: properties.paneSize.width});
           properties.editor_visible = true;
         }
         function hideEditor() {
@@ -109,18 +110,21 @@ angular.module('collaborative-editor', ['op.live-conference', 'angularResizable'
       link: link
     };
     }])
-  .directive('liveConferenceEditor', ['$rootScope', function() {
-    function controller($scope, $rootScope) {
+  .directive('liveConferenceEditor', ['$rootScope','properties', function() {
+    function controller($scope, $rootScope, properties) {
       $scope.colors = ['red', 'green', 'blue', 'yellow', 'black', 'white'];
       $scope.quill = false;
 
-      function emitResize(event, args) {
+      function emitResizeWidth(event, args) {
         var paneWidth = 100 * args.width / $(window).width();
         $rootScope.$emit('paneSize', {width: paneWidth});
+        return paneWidth;
       }
 
-      $scope.$on('angular-resizable.resizing', emitResize);
-      $scope.$on('angular-resizable.resizeEnd', emitResize);
+      $scope.$on('angular-resizable.resizing', emitResizeWidth);
+      $scope.$on('angular-resizable.resizeEnd', function() {
+        properties.paneSize.width = emitResizeWidth.apply(this, arguments);
+      });
     }
 
     return {
