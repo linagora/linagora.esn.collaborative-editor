@@ -14,6 +14,7 @@ var AwesomeYjsModule = new AwesomeModule('linagora.esn.text-editor', {
     },
     deploy: function(dependencies, callback) {
       // register the webapp
+      var depList;
       var app = require('./webserver/application')(dependencies);
       var webserver = dependencies('webserver-wrapper');
 
@@ -21,8 +22,13 @@ var AwesomeYjsModule = new AwesomeModule('linagora.esn.text-editor', {
       webserver.injectCSS('editor', ['editor.css'], ['live-conference']);
 
       // Inject extra dependencies
-      var depList = {
-        js: ['../components/quill/dist/quill.js'],
+      depList = {
+        js: ['../components/quill/dist/quill.js',
+          '../components/html-md/dist/md.min.js',
+          '../components/file-saver.js/FileSaver.js',
+          '../components/pdfmake/build/pdfmake.js',
+          '../components/pdfmake/build/vfs_fonts.js'
+        ],
         css: ['editor.css', '../components/quill/dist/quill.snow.css']
       };
 
