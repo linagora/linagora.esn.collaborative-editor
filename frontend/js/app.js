@@ -63,16 +63,16 @@ angular.module('collaborative-editor', ['op.live-conference', 'angularResizable'
       });
     };
   }])
-  .constant('initialPaneSize', {
+  .constant('INITIAL_PANE_SIZE', {
     width: 70,
     height: 100
   })
   .directive('liveConferenceEditorController', ['properties', '$rootScope',
-    'yjsService', 'editorService', 'bindEditorService', '$log', 'initialPaneSize',
-    function(properties, $rootScope, yjsService, editorService, bindEditorService, $log, initialPaneSize) {
+    'yjsService', 'editorService', 'bindEditorService', '$log', 'INITIAL_PANE_SIZE',
+    function(properties, $rootScope, yjsService, editorService, bindEditorService, $log, INITIAL_PANE_SIZE) {
       function link(scope) {
         properties.editor_visible = false;
-        properties.paneSize = {width: initialPaneSize.width, height: initialPaneSize.height};
+        properties.paneSize = INITIAL_PANE_SIZE;
         scope.properties = properties;
         function showEditor() {
           $rootScope.$emit('paneSize', {width: properties.paneSize.width});
