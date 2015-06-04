@@ -18,7 +18,8 @@ var AwesomeYjsModule = new AwesomeModule('linagora.esn.text-editor', {
       var app = require('./webserver/application')(dependencies);
       var webserver = dependencies('webserver-wrapper');
 
-      webserver.injectAngularModules('editor', ['app.js'], 'collaborative-editor', ['live-conference']);
+      var myJsFiles = ['app.js', 'markdown-export.js', 'pdf-export.js', 'plaintext-export.js'];
+      webserver.injectAngularModules('editor', myJsFiles, 'collaborative-editor', ['live-conference']);
       webserver.injectCSS('editor', ['editor.css'], ['live-conference']);
 
       // Inject extra dependencies
