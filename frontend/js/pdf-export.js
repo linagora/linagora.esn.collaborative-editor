@@ -1,16 +1,6 @@
 'use strict';
 
 angular.module('collaborative-editor')
-  .constant('QUILL_TO_PDFMAKE_STYLE_EQUIVALENCE', {
-    'bold': 'bold',
-    'underline' : 'underline',
-    'italic': 'italics',
-    'size': 'fontSize',
-    'align': 'alignment',
-    'bullet': 'bullet',
-    'list': 'list',
-    'color': 'color'
-  })
   .run(['QUILL_TO_PDFMAKE_STYLE_EQUIVALENCE', '$window', 'saverFactory',
     function(QUILL_TO_PDFMAKE_STYLE_EQUIVALENCE, $window, saverFactory) {
       function generate(editor) {
