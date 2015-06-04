@@ -67,6 +67,58 @@ angular.module('collaborative-editor', ['op.live-conference', 'angularResizable'
     width: 70,
     height: 100
   })
+  .factory('collaborativeEditorDriver',['properties', '$rootScope', 'yjsService',
+    'editorService', 'bindEditorService', '$log',
+    function(properties, $rootScope, yjsService, editorService, bindEditorService, $log) {
+      function showEditor() {
+        if (!properties.quill) {
+          wireEditor();
+        }
+        $rootScope.$emit('paneSize', {width: properties.paneSize.width});
+        properties.editor_visible = true;
+        $rootScope.$broadcast('editor:visible', properties);
+      }
+      function hideEditor() {
+        $rootScope.$emit('paneSize', {width: 0});
+        $rootScope.$broadcast('editor:hidden', properties);
+        properties.editor_visible = false;
+      }
+
+      function wireEditor() {
+        properties.quill = editorService();
+        var ret = yjsService();
+        properties.y = ret.y;
+        properties.connector = ret.connector;
+        $log.info('Editor objects', properties.y, properties.connector, properties.quill);
+        window.y = ret.y;
+        window.quill = properties.quill;
+        bindEditorService(properties.quill, properties.connector, properties.y);
+      }
+
+      function toggleEditor() {
+        if (properties.editor_visible) {
+          hideEditor();
+        } else {
+          showEditor();
+        }
+      }
+
+      function closeEditor() {
+        if (properties.quill) {
+          properties.quill.destroy();
+        }
+        hideEditor();
+      }
+
+      return {
+        toggleEditor: toggleEditor,
+        hideEditor: hideEditor,
+        showEditor: showEditor,
+        closeEditor: closeEditor
+      };
+
+    }
+  ])
   .directive('liveConferenceEditorController', ['properties', '$rootScope',
     'yjsService', 'editorService', 'bindEditorService', '$log', 'INITIAL_PANE_SIZE',
     function(properties, $rootScope, yjsService, editorService, bindEditorService, $log, INITIAL_PANE_SIZE) {
