@@ -150,10 +150,22 @@ angular.module('collaborative-editor', ['op.live-conference', 'angularResizable'
       });
     }
 
+    function link(scope, element) {
+      scope.$on('editor:visible', function(evt, data) {
+        element.css('width', data.paneSize.width + '%');
+        element.addClass('visible');
+      });
+      scope.$on('editor:hidden', function(evt, data) {
+        element.css('width', '0.1%');
+        element.removeClass('visible');
+      });
+    }
+
     return {
       controller: controller,
       restrict: 'E',
       replace: 'true',
+      link: link,
       templateUrl: 'editor/views/editor.html'
     };
   }]).directive('editorToggleElement', [
