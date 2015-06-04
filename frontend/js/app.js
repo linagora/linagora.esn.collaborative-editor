@@ -119,48 +119,14 @@ angular.module('collaborative-editor', ['op.live-conference', 'angularResizable'
 
     }
   ])
-  .directive('liveConferenceEditorController', ['properties', '$rootScope',
-    'yjsService', 'editorService', 'bindEditorService', '$log', 'INITIAL_PANE_SIZE',
-    function(properties, $rootScope, yjsService, editorService, bindEditorService, $log, INITIAL_PANE_SIZE) {
+  .directive('liveConferenceEditorController', ['properties', 'INITIAL_PANE_SIZE', 'collaborativeEditorDriver',
+    function(properties, INITIAL_PANE_SIZE, collaborativeEditorDriver) {
       function link(scope) {
         properties.editor_visible = false;
         properties.paneSize = INITIAL_PANE_SIZE;
         scope.properties = properties;
-        function showEditor() {
-          $rootScope.$emit('paneSize', {width: properties.paneSize.width});
-          properties.editor_visible = true;
-        }
-        function hideEditor() {
-          $rootScope.$emit('paneSize', {width: 0});
-          properties.editor_visible = false;
-        }
-        scope.toggleEditor = function() {
-          if (properties.editor_visible) {
-            hideEditor();
-          } else {
-            showEditor();
-          }
-
-          if (!properties.quill) {
-            properties.quill = editorService();
-            var ret = yjsService();
-            properties.y = ret.y;
-            properties.connector = ret.connector;
-            $log.info('Editor objects', properties.y, properties.connector, properties.quill);
-            window.y = ret.y;
-            window.quill = properties.quill;
-            bindEditorService(properties.quill, properties.connector, properties.y);
-          }
-        };
-
-        scope.properties = properties;
-
-        scope.closeEditor = function() {
-          if (properties.quill) {
-            properties.quill.destroy();
-          }
-          hideEditor();
-        };
+        scope.closeEditor = collaborativeEditorDriver.closeEditor;
+        scope.toggleEditor = collaborativeEditorDriver.toggleEditor;
       }
     return {
       restrict: 'A',
