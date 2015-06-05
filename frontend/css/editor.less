@@ -5,7 +5,7 @@
 @editor_shadows: 0 0 3px @black_shade;
 
 .editor-wrapper {
-  width: 0%;
+  width: 0;
   height: 100%;
   z-index: 5;
   position: absolute;
@@ -16,23 +16,34 @@
   transition: width 0.6s, margin-right 0.6s, opacity 0.6s;
   margin-right: -40px;
   opacity: 0;
+
+  // For older Chrome and Safari
+  display: -webkit-flex;
+  -webkit-flex-direction: row;
+
+  display: flex;
+  flex-flow: column;
   
   &.visible {
     margin-right: 0px;
     opacity: 1;
   }
 
+  .toolbar {
+    flex: 0 1 auto;
+  }
+  .editor {
+    flex: 1 1 auto;
+    background-color: @editor_background_color;
+    border-radius: 5px;
+    box-shadow: @editor_shadows;
+    margin-bottom: 10px;
+  }
+  
   // CSS personalization for quill we use !important to force overriding
   // of quill color. To fix, awesome modules should support ordering of CSS
   .ql-picker-label {
     background-color: @background_color !important;
-  }
-
-  .editor {
-    background-color: @editor_background_color;
-    border-radius: 5px;
-    height: 90%;
-    box-shadow: @editor_shadows;
   }
 }
 
