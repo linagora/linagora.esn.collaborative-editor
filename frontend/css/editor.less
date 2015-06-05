@@ -5,7 +5,7 @@
 @editor_shadows: 0 0 3px @black_shade;
 
 .editor-wrapper {
-  width: 70%;
+  width: 0%;
   height: 100%;
   z-index: 5;
   position: absolute;
@@ -13,6 +13,14 @@
   background-color: @background_color;
   padding: 0 10px;
   box-shadow: @side_shadows;
+  transition: width 0.6s, margin-right 0.6s, opacity 0.6s;
+  margin-right: -40px;
+  opacity: 0;
+  
+  &.visible {
+    margin-right: 0px;
+    opacity: 1;
+  }
 
   // CSS personalization for quill we use !important to force overriding
   // of quill color. To fix, awesome modules should support ordering of CSS
@@ -39,4 +47,3 @@
 .rg-left span {
   border-color: @black_shade;
 }
-
