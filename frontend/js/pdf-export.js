@@ -26,12 +26,6 @@ angular.module('collaborative-editor')
           return processedAttributes;
         }
 
-        function copyAttributes(from, to) {
-          for (var key in from) {
-            to[key] = from[key];
-          }
-        }
-
         deltas.forEach(function(delta) {
           if (delta.insert === undefined) {
             return;
@@ -79,14 +73,14 @@ angular.module('collaborative-editor')
           var lastItem = paragraphs.length - 1;
           if (action.action === INSERT) {
             var line = {text: action.content};
-            copyAttributes(action.format, line);
+            angular.extend(line, action.format);
             paragraphs[lastItem].text.push(line);
 
           } else if (action.action === NEWLINE) {
             paragraphs.push({text: []});
 
           } else if (action.action === FORMAT_PARAGRAPH) {
-            copyAttributes(action.format, paragraphs[lastItem]);
+            angular.extend(paragraphs[lastItem], action.format);
 
             if ('bullet' in action.format) {
               paragraphs[lastItem].ul = paragraphs[lastItem].text;

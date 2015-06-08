@@ -144,4 +144,7 @@ angular.module('collaborative-editor')
       };
 
     }
-  ]);
+  ])
+  .service('notifyOnNewDocumentService', [function() {
+
+  }]);
