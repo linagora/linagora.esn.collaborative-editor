@@ -26,7 +26,7 @@ angular.module('collaborative-editor')
     return function() {
       return {
         quill: quill,
-        newNotification: 0
+        newNotification: false
       };
     };
   })
@@ -93,9 +93,9 @@ angular.module('collaborative-editor')
       };
     }
   ])
-.factory('collaborativeEditorDriver', ['properties', '$rootScope', 'yjsService',
-    'editorFactory', 'bindEditorService', '$log', '$window', 'collaborativeEditorNotification',
-    function(properties, $rootScope, yjsService, editorFactory, bindEditorService, $log, $window, collaborativeEditorNotification) {
+  .factory('collaborativeEditorDriver', ['properties', '$rootScope', 'yjsService',
+    'editorFactory', 'bindEditorService', '$log', '$window',
+    function(properties, $rootScope, yjsService, editorFactory, bindEditorService, $log, $window) {
       function showEditor() {
         if (!properties.quill) {
           wireEditor();
@@ -138,24 +138,25 @@ angular.module('collaborative-editor')
         hideEditor();
       }
 
+      function enableNotification() {
+        var tmp = yjsService(),
+          connector = tmp.connector,
+          y = tmp.y;
+
+        connector.addMessageListener(function(event) {
+          if (y.val('editor') && y.val('editor').getText().trim() !== '') {
+            properties.newNotification = true;
+          }
+        });
+      }
+
+      enableNotification();
+
       return {
         toggleEditor: toggleEditor,
         hideEditor: hideEditor,
         showEditor: showEditor,
         closeEditor: closeEditor
       };
-    }]
-  )
-  .factory('collaborativeEditorNotification', ['properties', 'yjsService',
-    function(properties, yjsService) {
-      var tmp = yjsService(),
-        connector = tmp.connector,
-        y = tmp.y;
-
-      connector.addMessageListener(function(event) {
-        if (y.val('editor') && y.val('editor').getText().trim() !== '') {
-          properties.newNotification = true;
-        }
-      });
-      return true;
-    }]);
+    }
+  ]);
