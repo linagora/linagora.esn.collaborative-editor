@@ -13,11 +13,18 @@ describe('Collaborative editor services', function() {
     module('jadeTemplates');
     module(function ($provide) {
       $provide.service('yjsService', function () {
+        var messageListeners = [];
         return function() {
           return {
             y: {},
             connector: {
-              whenSynced: function() {}
+              whenSynced: function() {},
+              addMessageListener: function(callback) {
+                messageListeners.push(callback);
+              },
+              getMessageListeners: function() {
+                return messageListeners;
+              }
             }
           };
         };
@@ -139,13 +146,12 @@ describe('Collaborative editor services', function() {
 
       bindEditorService = _bindEditorService_;
 
-      connector = {
-        whenSynced: function (callback) {
-          whenSyncedCallback = callback;
-        },
-        sync: function () {
-          whenSyncedCallback();
-        }
+      connector = {};
+      connector.whenSynced = function(callback) {
+        whenSyncedCallback = callback;
+      };
+      connector.sync = function() {
+        whenSyncedCallback();
       };
 
       y = {
@@ -223,6 +229,25 @@ describe('Collaborative editor services', function() {
 
     it('should have closeEditor', function() {
       expect(collaborativeEditorDriver.closeEditor).to.exist;
+    });
+  });
+
+  describe('collaborativeEditorNotification', function() {
+    var collaborativeEditorNotification, properties, yjsService;
+
+    beforeEach(inject(function(_collaborativeEditorNotification_, _properties_, _yjsService_) {
+      collaborativeEditorNotification = _collaborativeEditorNotification_;
+      properties = _properties_;
+      yjsService = _yjsService_;
+    }));
+
+    it('should change properties on each message got', function() {
+      var connector = yjsService().connector;
+      var listener = connector.getMessageListeners()[0];
+
+      expect(listener).to.be.a('function');
+      listener();
+      expect(properties.newNotification).to.be.true;
     });
   })
 });
