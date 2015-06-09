@@ -16,7 +16,7 @@ module.exports = function(config) {
       'test/**/*.js',
       'frontend/js/**/*.js',
       'frontend/components/angular-resizable/angular-resizable.min.js',
-      'frontend/components/awesome-yjs/frontend/**/*.js',
+      'frontend/components/awesome-yjs/frontend/js/*.js',
       'frontend/components/quill/dist/quill.js',
       'frontend/views/*.jade'
     ],

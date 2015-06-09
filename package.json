@@ -10,7 +10,6 @@
     "less-middleware": "~2.0.1"
   },
   "devDependencies": {
-    "bower": "^1.4.1",
     "karma-ng-jade2js-preprocessor": "^0.2.0",
     "karma-ng-jade2module-preprocessor": "git+https://ci.open-paas.org/stash/scm/or/karma-ng-jade2module-preprocessor.git"
   },

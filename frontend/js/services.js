@@ -51,7 +51,7 @@ angular.module('collaborative-editor')
       }
     };
   }])
-  .service('AttachInformationProviderService', ['currentConferenceState', 'attendeeColorsService',
+  .service('attachInformationProviderService', ['currentConferenceState', 'attendeeColorsService',
     function(currentConferenceState, attendeeColorsService) {
       return function(richtextInstance) {
         richtextInstance.attachProvider('nameProvider', function(rtcId) {
@@ -65,7 +65,7 @@ angular.module('collaborative-editor')
       };
     }
   ])
-  .service('bindEditorService', ['AttachInformationProviderService', '$window',
+  .service('bindEditorService', ['attachInformationProviderService', '$window',
     function(attachInformationProvider, $window) {
       return function(editor, connector, y) {
         var richText;

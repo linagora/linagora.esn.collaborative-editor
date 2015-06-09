@@ -108,11 +108,11 @@ describe('Collaborative editor services', function() {
     });
   });
 
-  describe('AttachInformationProviderService', function() {
+  describe('attachInformationProviderService', function() {
     var attachInfoProviderService, editor;
 
-    beforeEach(inject(function(_AttachInformationProviderService_, _editorFactory_, _$window_) {
-      attachInfoProviderService = _AttachInformationProviderService_;
+    beforeEach(inject(function(_attachInformationProviderService_, _editorFactory_, _$window_) {
+      attachInfoProviderService = _attachInformationProviderService_;
 
       _$window_.Quill = function() {
         this.attachProvider = chai.spy();
