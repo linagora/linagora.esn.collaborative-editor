@@ -38,8 +38,13 @@
           option(value='justify', label='Justify')
     span.ql-format-group
       span.ql-format-button.ql-link(title='Link')
-      // span.ql-format-button.ql-image(title='Image')
     span.ql-format-group.editor-action-button(live-conference-editor-controller)
+      span.dropdown.ql-format-button
+        a.dropdown-toggle(data-toggle='dropdown' href='#')
+          i.fa.fa-floppy-o
+        ul.dropdown-menu(export-facility role='menu' aria-labelledby='dLabel')
+          li(ng-repeat='saver in savers')
+            a(href="#" ng-click='saver.export()'){{saver.tooltip}}
       span.ql-format-button(ng-click="toggleEditor()")
-        i.fa.fa-caret-square-o-left(style='color:green')
+        i.fa.fa-times
   #editor.editor

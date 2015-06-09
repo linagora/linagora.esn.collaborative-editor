@@ -9,7 +9,10 @@
     "express": "~4.12.4",
     "less-middleware": "~2.0.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "karma-ng-jade2js-preprocessor": "^0.2.0",
+    "karma-ng-jade2module-preprocessor": "git+https://ci.open-paas.org/stash/scm/or/karma-ng-jade2module-preprocessor.git"
+  },
   "scripts": {
     "postinstall": "./node_modules/bower/bin/bower install"
   },

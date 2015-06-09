@@ -1,7 +1,7 @@
 @black_shade: rgba(0,0,0,0.4);
 @background_color: #EEE;
 @editor_background_color: #FFF;
-@side_shadows: -1px 0 2px @black_shade;
+@side_shadows: -2px 0 1px @black_shade;
 @editor_shadows: 0 0 3px @black_shade;
 
 .editor-wrapper {
@@ -29,9 +29,12 @@
     opacity: 1;
   }
 
-  .toolbar {
-    flex: 0 1 auto;
+  // CSS personalization for quill we use !important to force overriding
+  // of quill color. To fix, awesome modules should support ordering of CSS
+  .ql-picker-label {
+    background-color: @background_color !important;
   }
+
   .editor {
     flex: 1 1 auto;
     background-color: @editor_background_color;
