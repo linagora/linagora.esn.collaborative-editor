@@ -22,8 +22,8 @@ angular.module('collaborative-editor')
       };
     }
   ])
-  .directive('liveConferenceEditorController', ['properties', 'INITIAL_PANE_SIZE', 'collaborativeEditorDriver',
-    function(properties, INITIAL_PANE_SIZE, collaborativeEditorDriver) {
+  .directive('liveConferenceEditorController', ['properties', 'INITIAL_PANE_SIZE', 'collaborativeEditorDriver', '$window',
+    function(properties, INITIAL_PANE_SIZE, collaborativeEditorDriver, $window) {
       function link(scope) {
         properties.editor_visible = false;
         properties.paneSize = INITIAL_PANE_SIZE;
