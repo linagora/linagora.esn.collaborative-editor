@@ -43,6 +43,7 @@ angular.module('collaborative-editor')
 
       function emitResizeWidth(event, args) {
         var paneWidth = 100 * args.width / $($window).width();
+        paneWidth = Math.max(0, Math.min(paneWidth, 100));
         $rootScope.$emit('paneSize', {width: paneWidth});
         return paneWidth;
       }
