@@ -18,6 +18,8 @@ module.exports = function(config) {
       'frontend/components/angular-resizable/angular-resizable.min.js',
       'frontend/components/awesome-yjs/frontend/js/angular-yjs.js',
       'frontend/components/quill/dist/quill.js',
+      'frontend/components/ng-device-detector/ng-device-detector.js',
+      'frontend/components/re-tree/re-tree.js',
       'frontend/views/*.jade'
     ],
 

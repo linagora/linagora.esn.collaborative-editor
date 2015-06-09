@@ -21,6 +21,7 @@ var AwesomeYjsModule = new AwesomeModule('linagora.esn.text-editor', {
       var myJsFiles = ['app.js', 'services.js', 'directives.js', 'constants.js',
         'markdown-export.js', 'pdf-export.js', 'plaintext-export.js'];
       webserver.injectAngularModules('editor', myJsFiles, 'collaborative-editor', ['live-conference']);
+
       webserver.injectCSS('editor', ['editor.css'], ['live-conference']);
 
       // Inject extra dependencies
@@ -29,7 +30,9 @@ var AwesomeYjsModule = new AwesomeModule('linagora.esn.text-editor', {
           '../components/html-md/dist/md.min.js',
           '../components/file-saver.js/FileSaver.js',
           '../components/pdfmake/build/pdfmake.js',
-          '../components/pdfmake/build/vfs_fonts.js'
+          '../components/pdfmake/build/vfs_fonts.js',
+          '../components/re-tree/re-tree.min.js',
+          '../components/ng-device-detector/ng-device-detector.min.js'
         ],
         css: ['editor.css', '../components/quill/dist/quill.snow.css']
       };
