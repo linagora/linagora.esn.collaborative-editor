@@ -140,8 +140,8 @@ angular.module('collaborative-editor')
 
       function enableNotification() {
         var tmp = yjsService(),
-          connector = tmp.connector,
-          y = tmp.y;
+            connector = tmp.connector,
+            y = tmp.y;
 
         connector.addMessageListener(function(event) {
           if (y.val('editor') && y.val('editor').getText().trim() !== '') {
