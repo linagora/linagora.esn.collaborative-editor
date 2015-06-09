@@ -6,6 +6,12 @@
 @side_shadows: -2px 0 1px @black_shade;
 @editor_shadows: 0 0 3px @black_shade;
 @animation-curve: cubic-bezier(0.39, 0.58, 0.57, 1);
+@animation-start-size: 1;
+@animation-start-opacity: 1;
+@animation-end-size: 1.8;
+@animation-end-opacity: 0;
+@animation-length: 1.5s;
+
 .editor-wrapper {
   width: 0;
   height: 100%;
@@ -66,9 +72,48 @@
   0%, 50%, 100% {opacity: 1;}
   25%, 75% {opacity: 0;}
 }
-@keyframes flash {
-  0%, 50%, 100% {opacity: 1;}
-  25%, 75% {opacity: 0;}
+
+@-moz-keyframes pulse {
+  0% {
+    -moz-transform: scale3d(@animation-start-size, @animation-start-size, @animation-start-size);
+    transform: scale3d(@animation-start-size, @animation-start-size, @animation-start-size);
+    opacity: @animation-start-opacity;
+  }
+  100% {
+    -moz-transform: scale3d(@animation-end-size, @animation-end-size, @animation-end-size);
+    transform: scale3d(@animation-end-size, @animation-end-size, @animation-end-size);
+    opacity: @animation-end-opacity;
+  }
+}
+@-webkit-keyframes pulse {
+  0% {
+    -webkit-transform: scale3d(@animation-start-size, @animation-start-size, @animation-start-size);
+    transform: scale3d(@animation-start-size, @animation-start-size, @animation-start-size);
+    opacity: @animation-start-opacity;
+  }
+  100% {
+    -webkit-transform: scale3d(@animation-end-size, @animation-end-size, @animation-end-size);
+    transform: scale3d(@animation-end-size, @animation-end-size, @animation-end-size);
+    opacity: @animation-end-opacity;
+  }
+}
+@keyframes pulse {
+  0% {
+    -webkit-transform: scale3d(@animation-start-size, @animation-start-size, @animation-start-size);
+    -moz-transform: scale3d(@animation-start-size, @animation-start-size, @animation-start-size);
+    -ms-transform: scale3d(@animation-start-size, @animation-start-size, @animation-start-size);
+    -o-transform: scale3d(@animation-start-size, @animation-start-size, @animation-start-size);
+    transform: scale3d(@animation-start-size, @animation-start-size, @animation-start-size);
+    opacity: @animation-start-size;
+  }
+  100% {
+    -webkit-transform: scale3d(@animation-end-size, @animation-end-size, @animation-end-size);
+    -moz-transform: scale3d(@animation-end-size, @animation-end-size, @animation-end-size);
+    -ms-transform: scale3d(@animation-end-size, @animation-end-size, @animation-end-size);
+    -o-transform: scale3d(@animation-end-size, @animation-end-size, @animation-end-size);
+    transform: scale3d(@animation-end-size, @animation-end-size, @animation-end-size);
+    opacity: @animation-end-opacity;
+  }
 }
 
 // CSS for the button
@@ -83,21 +128,31 @@
     right: 0;
     z-index: 5;
     text-shadow: @side_shadows;
-    -webkit-animation-name: flash;
-    animation-name: flash;
 
     &:before {
       position: absolute;
       right: 0;
       bottom: 0;
+      -webkit-animation-name: pulse;
+      -moz-animation-name: pulse;
+      -o-animation-name: pulse;
+      animation-name: pulse;
+      -webkit-animation-duration: @animation-length;
+      -moz-animation-duration: @animation-length;
+      -o-animation-duration: @animation-length;
+      animation-duration: @animation-length;
+      -webkit-animation-fill-mode: both;
+      -moz-animation-fill-mode: both;
+      -o-animation-fill-mode: both;
+      animation-fill-mode: both;
+      -webkit-animation-timing-function: @animation-curve;
+      -moz-animation-timing-function: @animation-curve;
+      -o-animation-timing-function: @animation-curve;
+      animation-timing-function: @animation-curve;
+      -webkit-animation-iteration-count: infinite;
+      -moz-animation-iteration-count: infinite;
+      -o-animation-iteration-count: infinite;
+      animation-iteration-count: infinite;
     }
-    -webkit-animation-duration: 5s;
-    animation-duration: 5s;
-    -webkit-animation-fill-mode: both;
-    animation-fill-mode: both;
-    -webkit-animation-timing-function: @animation-curve;
-    animation-timing-function: @animation-curve;
-    animation-iteration-count:infinite;
-    -webkit-animation-iteration-count:infinite;
   }
 }
