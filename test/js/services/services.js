@@ -16,7 +16,15 @@ describe('Collaborative editor services', function() {
         var messageListeners = [];
         return function() {
           return {
-            y: {},
+            y: {
+              val: function() {
+                return {
+                  getText: function() {
+                    return 'abc';
+                  }
+                };
+              }
+            },
             connector: {
               whenSynced: function() {},
               addMessageListener: function(callback) {
@@ -234,24 +242,12 @@ describe('Collaborative editor services', function() {
     });
 
     it('should change properties on each message got', function() {
-      //var connector = yjsService().connector;
-      //var listener = connector.getMessageListeners()[0];
-      //
-      //expect(listener).to.be.a('function');
-      //listener();
-      //expect(properties.newNotification).to.be.true;
+      var connector = yjsService().connector;
+      var listener = connector.getMessageListeners()[0];
+
+      expect(listener).to.be.a('function');
+      listener();
+      expect(properties.newNotification).to.be.true;
     });
   });
-
-  //describe('collaborativeEditorNotification', function() {
-  //  var collaborativeEditorNotification, properties, yjsService;
-  //
-  //  beforeEach(inject(function(_collaborativeEditorNotification_, _properties_, _yjsService_) {
-  //    collaborativeEditorNotification = _collaborativeEditorNotification_;
-  //    properties = _properties_;
-  //    yjsService = _yjsService_;
-  //  }));
-  //
-  //
-  //})
 });
