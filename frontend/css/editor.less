@@ -1,8 +1,16 @@
+@brand-primary: #eadc25;
 @black_shade: rgba(0,0,0,0.4);
+@warning-color: rgba(255,0,0,1);
 @background_color: #EEE;
 @editor_background_color: #FFF;
 @side_shadows: -2px 0 1px @black_shade;
 @editor_shadows: 0 0 3px @black_shade;
+@animation-curve: cubic-bezier(0.39, 0.58, 0.57, 1);
+@animation-start-size: 1;
+@animation-start-opacity: 1;
+@animation-end-size: 1.8;
+@animation-end-opacity: 0;
+@animation-length: 1.5s;
 
 .editor-wrapper {
   width: 0;
@@ -23,7 +31,7 @@
 
   display: flex;
   flex-flow: column;
-  
+
   &.visible {
     margin-right: 0px;
     opacity: 1;
@@ -36,17 +44,15 @@
   }
 
   .editor {
-    flex: 1 1 auto;
     background-color: @editor_background_color;
     border-radius: 5px;
+    flex: 1 1 auto;
     box-shadow: @editor_shadows;
     margin-bottom: 10px;
   }
-  
-  // CSS personalization for quill we use !important to force overriding
-  // of quill color. To fix, awesome modules should support ordering of CSS
-  .ql-picker-label {
-    background-color: @background_color !important;
+
+  .toolbar {
+    flex: 1 1 auto;
   }
 }
 
@@ -60,4 +66,60 @@
 }
 .rg-left span {
   border-color: @black_shade;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale3d(0.5, 0.5, 0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale3d(1.2, 1.2, 1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale3d(1, 1, 1);
+    opacity: 1;
+  }
+}
+
+// CSS for the button
+.notificationButton {
+  position: relative;
+  display: inline-block;
+
+  .modificationOverlay {
+    color: @brand-primary;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 5;
+    text-shadow: @side_shadows;
+
+    &:before {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      -webkit-animation-name: pulse;
+      -moz-animation-name: pulse;
+      -o-animation-name: pulse;
+      animation-name: pulse;
+      -webkit-animation-duration: @animation-length;
+      -moz-animation-duration: @animation-length;
+      -o-animation-duration: @animation-length;
+      animation-duration: @animation-length;
+      -webkit-animation-fill-mode: both;
+      -moz-animation-fill-mode: both;
+      -o-animation-fill-mode: both;
+      animation-fill-mode: both;
+      -webkit-animation-timing-function: @animation-curve;
+      -moz-animation-timing-function: @animation-curve;
+      -o-animation-timing-function: @animation-curve;
+      animation-timing-function: @animation-curve;
+      -webkit-animation-iteration-count: 1;
+      -moz-animation-iteration-count: 1;
+      -o-animation-iteration-count: 1;
+      animation-iteration-count: 1;
+    }
+  }
 }

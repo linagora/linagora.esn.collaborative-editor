@@ -13,11 +13,26 @@ describe('Collaborative editor services', function() {
     module('jadeTemplates');
     module(function ($provide) {
       $provide.service('yjsService', function () {
+        var messageListeners = [];
         return function() {
           return {
-            y: {},
+            y: {
+              val: function() {
+                return {
+                  getText: function() {
+                    return 'abc';
+                  }
+                };
+              }
+            },
             connector: {
-              whenSynced: function() {}
+              whenSynced: function() {},
+              addMessageListener: function(callback) {
+                messageListeners.push(callback);
+              },
+              getMessageListeners: function() {
+                return messageListeners;
+              }
             }
           };
         };
@@ -139,18 +154,17 @@ describe('Collaborative editor services', function() {
 
       bindEditorService = _bindEditorService_;
 
-      connector = {
-        whenSynced: function (callback) {
-          whenSyncedCallback = callback;
-        },
-        sync: function () {
-          whenSyncedCallback();
-        }
+      connector = {};
+      connector.whenSynced = function(callback) {
+        whenSyncedCallback = callback;
+      };
+      connector.sync = function() {
+        whenSyncedCallback();
       };
 
       y = {
         observe: chai.spy(),
-        val: chai.spy(),
+        val: chai.spy()
       };
 
       $window.Y = {
@@ -204,9 +218,11 @@ describe('Collaborative editor services', function() {
   });
 
   describe('collaborativeEditorDriver', function() {
-    var collaborativeEditorDriver;
-    beforeEach(inject(function(_collaborativeEditorDriver_) {
+    var collaborativeEditorDriver, properties, yjsService;
+    beforeEach(inject(function(_collaborativeEditorDriver_, _properties_, _yjsService_) {
       collaborativeEditorDriver = _collaborativeEditorDriver_;
+      properties = _properties_;
+      yjsService = _yjsService_;
     }));
 
     it('should have toggleEditor', function() {
@@ -224,5 +240,14 @@ describe('Collaborative editor services', function() {
     it('should have closeEditor', function() {
       expect(collaborativeEditorDriver.closeEditor).to.exist;
     });
-  })
+
+    it('should change properties on each message got', function() {
+      var connector = yjsService().connector;
+      var listener = connector.getMessageListeners()[0];
+
+      expect(listener).to.be.a('function');
+      listener();
+      expect(properties.newNotification).to.be.true;
+    });
+  });
 });

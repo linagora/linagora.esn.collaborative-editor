@@ -25,13 +25,13 @@ angular.module('collaborative-editor')
     var quill = false;
     return function() {
       return {
-        quill: quill
+        quill: quill,
+        newNotification: false
       };
     };
   })
   .factory('editorFactory', ['$window', '$document', function($window) {
     var quill = false;
-
     return {
       getEditor: function() {
         if (!quill) {
@@ -93,7 +93,7 @@ angular.module('collaborative-editor')
       };
     }
   ])
-.factory('collaborativeEditorDriver', ['properties', '$rootScope', 'yjsService',
+  .factory('collaborativeEditorDriver', ['properties', '$rootScope', 'yjsService',
     'editorFactory', 'bindEditorService', '$log', '$window',
     function(properties, $rootScope, yjsService, editorFactory, bindEditorService, $log, $window) {
       function showEditor() {
@@ -118,6 +118,7 @@ angular.module('collaborative-editor')
         $log.info('Editor objects', properties.y, properties.connector, properties.quill);
         $window.y = ret.y;
         $window.quill = properties.quill;
+
         bindEditorService(properties.quill, properties.connector, properties.y);
       }
 
@@ -127,6 +128,7 @@ angular.module('collaborative-editor')
         } else {
           showEditor();
         }
+        properties.newNotification = false;
       }
 
       function closeEditor() {
@@ -136,15 +138,25 @@ angular.module('collaborative-editor')
         hideEditor();
       }
 
+      function enableNotification() {
+        var tmp = yjsService(),
+            connector = tmp.connector,
+            y = tmp.y;
+
+        connector.addMessageListener(function(event) {
+          if (y.val('editor') && y.val('editor').getText().trim() !== '') {
+            properties.newNotification = true;
+          }
+        });
+      }
+
+      enableNotification();
+
       return {
         toggleEditor: toggleEditor,
         hideEditor: hideEditor,
         showEditor: showEditor,
         closeEditor: closeEditor
       };
-
     }
-  ])
-  .service('notifyOnNewDocumentService', [function() {
-
-  }]);
+  ]);

@@ -1,3 +1,7 @@
 li(live-conference-editor-controller)
-  a(ng-click="toggleEditor()" href="")
-    i.fa.fa-pencil.fa-2x.conference-light-button
+  a(href="", ng-click="toggleEditor()")
+    span.notificationButton.conference-light-button
+      i.fa.fa-exclamation-circle.fa-1x(ng-class='{modificationOverlay: ' +
+      'properties.newNotification && !properties.editor_visible}'
+      ng-show='properties.newNotification && !properties.editor_visible')
+      i.fa.fa-pencil.fa-2x

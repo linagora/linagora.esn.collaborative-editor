@@ -15,10 +15,17 @@ describe('collaborative editor directives', function() {
     module(function ($provide) {
       $provide.service('yjsService', function () {
         return function() {
+          var messageListeners = [];
           return {
             y: {},
             connector: {
-              whenSynced: function() {}
+              whenSynced: function() {},
+              addMessageListener: function(callback) {
+                messageListeners.push(callback);
+              },
+              getMessageListener: function() {
+                return messageListeners;
+              }
             }
           };
         };
