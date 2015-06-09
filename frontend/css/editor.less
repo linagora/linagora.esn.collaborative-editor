@@ -1,11 +1,13 @@
+@brand-primary: #4A81EA;
 @black_shade: rgba(0,0,0,0.4);
+@warning-color: rgba(255,0,0,1);
 @background_color: #EEE;
 @editor_background_color: #FFF;
 @side_shadows: -2px 0 1px @black_shade;
 @editor_shadows: 0 0 3px @black_shade;
-
+@animation-curve: cubic-bezier(0.39, 0.58, 0.57, 1);
 .editor-wrapper {
-  width: 0;
+  width: 0%;
   height: 100%;
   z-index: 5;
   position: absolute;
@@ -23,7 +25,7 @@
 
   display: flex;
   flex-flow: column;
-  
+
   &.visible {
     margin-right: 0px;
     opacity: 1;
@@ -36,17 +38,15 @@
   }
 
   .editor {
-    flex: 1 1 auto;
     background-color: @editor_background_color;
     border-radius: 5px;
+    flex: 1 1 auto;
     box-shadow: @editor_shadows;
     margin-bottom: 10px;
   }
-  
-  // CSS personalization for quill we use !important to force overriding
-  // of quill color. To fix, awesome modules should support ordering of CSS
-  .ql-picker-label {
-    background-color: @background_color !important;
+
+  .toolbar {
+    flex: 1 1 auto;
   }
 }
 
@@ -60,4 +60,44 @@
 }
 .rg-left span {
   border-color: @black_shade;
+}
+
+@-webkit-keyframes flash {
+  0%, 50%, 100% {opacity: 1;}
+  25%, 75% {opacity: 0;}
+}
+@keyframes flash {
+  0%, 50%, 100% {opacity: 1;}
+  25%, 75% {opacity: 0;}
+}
+
+// CSS for the button
+.notificationButton {
+  position: relative;
+  display: inline-block;
+
+  .modificationOverlay {
+    color: @brand-primary;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 5;
+    text-shadow: @side_shadows;
+    -webkit-animation-name: flash;
+    animation-name: flash;
+
+    &:before {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+    }
+    -webkit-animation-duration: 5s;
+    animation-duration: 5s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+    -webkit-animation-timing-function: @animation-curve;
+    animation-timing-function: @animation-curve;
+    animation-iteration-count:infinite;
+    -webkit-animation-iteration-count:infinite;
+  }
 }
