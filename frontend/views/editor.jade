@@ -1,4 +1,4 @@
-#editor-wrapper.editor-wrapper(resizable r-directions="['left']")
+#editor-wrapper.editor-wrapper(resizable r-directions="['left']" device-detector)
   #toolbar.toolbar
     span.ql-format-group
       select.ql-font(title='Font')
@@ -38,13 +38,13 @@
           option(value='justify', label='Justify')
     span.ql-format-group
       span.ql-format-button.ql-link(title='Link')
-    span.ql-format-group.editor-action-button(live-conference-editor-controller)
+    span.ql-format-group(live-conference-editor-controller)
       span.dropdown.ql-format-button
         a.dropdown-toggle(data-toggle='dropdown' href='#')
           i.fa.fa-floppy-o
         ul.dropdown-menu(export-facility role='menu' aria-labelledby='dLabel')
           li(ng-repeat='saver in savers')
             a(href="#" ng-click='saver.export()'){{saver.tooltip}}
-      span.ql-format-button(ng-click="toggleEditor()")
-        i.fa.fa-times
+    span.ql-format-button.editor-close-button(ng-click="toggleEditor()")
+      i.fa.fa-times
   #editor.editor

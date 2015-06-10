@@ -66,7 +66,7 @@ angular.module('collaborative-editor')
         element.addClass('visible');
       });
       scope.$on('editor:hidden', function(evt, data) {
-        element.css('width', '0.1%');
+        element.css('width', '0');
         element.removeClass('visible');
       });
     }
