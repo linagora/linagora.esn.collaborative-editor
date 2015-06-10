@@ -40,10 +40,17 @@ angular.module('collaborative-editor')
     function controller($scope) {
       $scope.colors = ['red', 'green', 'blue', 'yellow', 'black', 'white'];
       $scope.quill = false;
+      if (detectUtils.isMobile()) {
+        properties.minPaneWidth = 100;
+        properties.maxPaneWidth = 100;
+      } else {
+        properties.minPaneWidth = 0;
+        properties.maxPaneWidth = 100;
+      }
 
       function emitResizeWidth(event, args) {
         var paneWidth = 100 * args.width / $($window).width();
-        paneWidth = Math.max(0, Math.min(paneWidth, 100));
+        paneWidth = Math.max(properties.minPaneWidth, Math.min(properties.maxPaneWidth, paneWidth));
         $rootScope.$emit('paneSize', {width: paneWidth});
         return paneWidth;
       }
@@ -55,13 +62,11 @@ angular.module('collaborative-editor')
     }
 
     function link(scope, element) {
+      function limitWidth(width) {
+        return Math.max(properties.minPaneWidth, Math.min(properties.maxPaneWidth, width));
+      }
       scope.$on('editor:visible', function(evt, data) {
-        var width;
-        if (detectUtils.isMobile()) {
-          width = '100%';
-        } else {
-          width = data.paneSize.width + '%';
-        }
+        var width = limitWidth(data.paneSize.width) + '%';
         element.css('width', width);
         element.addClass('visible');
       });
