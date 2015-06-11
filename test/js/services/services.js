@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('Collaborative editor services', function() {
   var scope, $rootScope, $window, element, $compile;
-  var eventCallbackService = {}, onCallback, quillOnCallback, quillOnEvent;
+  var eventCallbackService = {}, onCallback = {}, quillOnCallback, quillOnEvent;
 
   beforeEach(function () {
     module('collaborative-editor');
@@ -51,7 +51,7 @@ describe('Collaborative editor services', function() {
 
       $provide.value('eventCallbackService', eventCallbackService);
 
-      eventCallbackService.on = chai.spy(function(event, cb) { onCallback = cb; });
+      eventCallbackService.on = chai.spy(function(event, cb) { onCallback[event] = cb; });
       eventCallbackService.off = chai.spy(function() {});
     });
   });
@@ -298,13 +298,13 @@ describe('Collaborative editor services', function() {
         .and.to.have.been.called.twice;
     });
 
-    it('The eventCallbackService listener should return a string when newNotification is true', function() {
+    it('The eventCallbackService beforeunload listener should return a string when newNotification is true', function() {
       properties.newNotification = true;
 
-      expect(onCallback()).to.be.a('string');
+      expect(onCallback.beforeunload()).to.be.a('string');
     });
 
-    it('The eventCallbackService listener should return a string when there is an unsaved modification', function() {
+    it('The eventCallbackService beforeunload listener should return a string when there is an unsaved modification', function() {
       properties.newNotification = false;
       properties.documentSaved = false;
       properties.quill = {
@@ -313,10 +313,10 @@ describe('Collaborative editor services', function() {
         }
       };
 
-      expect(onCallback()).to.be.a('string');
+      expect(onCallback.beforeunload()).to.be.a('string');
     });
 
-    it('The eventCallbackService listener should return nothing when there is no text', function() {
+    it('The eventCallbackService beforeunload listener should return nothing when there is no text', function() {
       properties.newNotification = false;
       properties.documentSaved = false;
       properties.quill = {
@@ -325,10 +325,10 @@ describe('Collaborative editor services', function() {
         }
       };
 
-      expect(onCallback()).to.not.exist;
+      expect(onCallback.beforeunload()).to.not.exist;
     });
 
-    it('The eventCallbackService listener should return nothing when there is no unsaved modification', function() {
+    it('The eventCallbackService beforeunload listener should return nothing when there is no unsaved modification', function() {
       properties.newNotification = false;
       properties.documentSaved = true;
       properties.quill = {
@@ -337,7 +337,65 @@ describe('Collaborative editor services', function() {
         }
       };
 
-      expect(onCallback()).to.not.exist;
+      expect(onCallback.beforeunload()).to.not.exist;
+    });
+
+    it('The eventCallbackService conferenceleft listener should return an object when newNotification is true', function() {
+      properties.newNotification = true;
+
+      expect(onCallback.conferenceleft()).to.be.an('object');
+    });
+
+    it('The eventCallbackService conferenceleft listener should return an object when there is an unsaved modification', function() {
+      properties.newNotification = false;
+      properties.documentSaved = false;
+      properties.quill = {
+        getText: function() {
+          return "Test";
+        }
+      };
+
+      expect(onCallback.conferenceleft()).to.be.an('object');
+    });
+
+    it('The eventCallbackService conferenceleft listener should return nothing when there is no text', function() {
+      properties.newNotification = false;
+      properties.documentSaved = false;
+      properties.quill = {
+        getText: function() {
+          return "";
+        }
+      };
+
+      expect(onCallback.conferenceleft()).to.not.exist;
+    });
+
+    it('The eventCallbackService conferenceleft listener should return nothing when there is no unsaved modification', function() {
+      properties.newNotification = false;
+      properties.documentSaved = true;
+      properties.quill = {
+        getText: function() {
+          return "Test";
+        }
+      };
+
+      expect(onCallback.conferenceleft()).to.not.exist;
+    });
+
+    it('The eventCallbackService conferenceleft listener should return an object when there is unsaved modification', function() {
+      var callback;
+      properties.newNotification = true;
+      callback = onCallback.conferenceleft();
+
+      expect(callback).to.have.property('message');
+      expect(callback).to.have.property('buttons')
+        .and.be.an('array');
+
+      callback.buttons.forEach(function(button) {
+        expect(button).to.have.property('text');
+        expect(button).to.have.property('callback')
+          .and.be.a('function');
+      });
     });
   });
 });
