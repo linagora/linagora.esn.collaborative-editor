@@ -241,7 +241,7 @@ describe('Collaborative editor services', function() {
       properties.paneSize = {
         width: 0,
         height: 0
-      }
+      };
     }));
 
     it('should have toggleEditor', function() {
@@ -293,7 +293,9 @@ describe('Collaborative editor services', function() {
     });
 
     it('should register a listener to eventCallbackService', function() {
-      expect(eventCallbackService.on).to.have.been.called.once;
+      expect(eventCallbackService.on).to.have.been.called.with('beforeunload')
+        .and.to.have.been.called.with('conferenceleft')
+        .and.to.have.been.called.twice;
     });
 
     it('The eventCallbackService listener should return a string when newNotification is true', function() {

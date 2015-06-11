@@ -159,19 +159,20 @@ angular.module('collaborative-editor')
       function registerCallbacksOnConferenceLeft() {
         eventCallbackService.on('conferenceleft', function() {
           var savers, buttons;
+
           function addIdsIfMissing() {
             var html = "";
-            if($('#editor').length === 0) {
+            if ($('#editor').length === 0) {
               html += '<div style="display: none" id="editor"></div>';
             }
-            if($('#toolbar').length ===0) {
+            if ($('#toolbar').length === 0) {
               html += '<div style="display: none" id="toolbar"></div>';
             }
 
             if (html !== '') {
               $('body').append(html);
             }
-          })
+          }
 
           addIdsIfMissing();
 
