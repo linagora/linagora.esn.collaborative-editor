@@ -36,13 +36,21 @@ angular.module('collaborative-editor')
         link: link
       };
     }])
-  .directive('liveConferenceEditor', ['$rootScope', 'properties', '$window', function() {
-    function controller($scope, $rootScope, properties, $window) {
+  .directive('liveConferenceEditor', ['$rootScope', 'properties', '$window', 'detectUtils', function($rootScope, properties, $window, detectUtils) {
+    function controller($scope) {
       $scope.colors = ['red', 'green', 'blue', 'yellow', 'black', 'white'];
       $scope.quill = false;
+      if (detectUtils.isMobile()) {
+        properties.minPaneWidth = 100;
+        properties.maxPaneWidth = 100;
+      } else {
+        properties.minPaneWidth = 0;
+        properties.maxPaneWidth = 100;
+      }
 
       function emitResizeWidth(event, args) {
         var paneWidth = 100 * args.width / $($window).width();
+        paneWidth = Math.max(properties.minPaneWidth, Math.min(properties.maxPaneWidth, paneWidth));
         $rootScope.$emit('paneSize', {width: paneWidth});
         return paneWidth;
       }
@@ -54,12 +62,16 @@ angular.module('collaborative-editor')
     }
 
     function link(scope, element) {
+      function limitWidth(width) {
+        return Math.max(properties.minPaneWidth, Math.min(properties.maxPaneWidth, width));
+      }
       scope.$on('editor:visible', function(evt, data) {
-        element.css('width', data.paneSize.width + '%');
+        var width = limitWidth(data.paneSize.width) + '%';
+        element.css('width', width);
         element.addClass('visible');
       });
       scope.$on('editor:hidden', function(evt, data) {
-        element.css('width', '0.1%');
+        element.css('width', '0');
         element.removeClass('visible');
       });
     }
