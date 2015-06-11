@@ -165,7 +165,7 @@ angular.module('collaborative-editor')
           var savers, buttons;
 
           function addIdsIfMissing() {
-            var html = "";
+            var html = '';
             if ($('#editor').length === 0) {
               html += '<div style="display: none" id="editor"></div>';
             }
