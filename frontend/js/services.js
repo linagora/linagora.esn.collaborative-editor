@@ -156,6 +156,10 @@ angular.module('collaborative-editor')
         });
       }
 
+      function needSaving() {
+        return properties.newNotification || (properties.quill && properties.quill.getText().trim().length > 0 && !properties.documentSaved);
+      }
+
       function registerCallbacksOnConferenceLeft() {
         eventCallbackService.on('conferenceleft', function() {
           var savers, buttons;
@@ -179,7 +183,7 @@ angular.module('collaborative-editor')
           if (!properties.quill) {
             wireEditor();
           }
-          if (properties.newNotification && properties.quill.getText().trim().length > 0) {
+          if (needSaving()) {
             savers = saverFactory.get();
             buttons = savers.map(function(saver) {
               return {
@@ -196,18 +200,22 @@ angular.module('collaborative-editor')
               urgency: 'question'
             };
           } else {
-            return [];
+            return null;
           }
+        });
+      }
+
+      function registerCallbacksOnBeforeUnload() {
+        eventCallbackService.on('beforeunload', function() {
+          return needSaving() ?
+            'There is an unsaved document in the collaborative editor, do you want to stay in the conference and save it?' :
+            null;
         });
       }
 
       enableNotification();
       registerCallbacksOnConferenceLeft();
-
-      eventCallbackService.on('beforeunload', function() {
-        return properties.newNotification || (properties.quill && properties.quill.getText().trim().length > 0 && !properties.documentSaved) ?
-          'There is an unsaved document in the collaborative editor, do you want to stay in the conference and save it?' : null;
-      });
+      registerCallbacksOnBeforeUnload();
 
       return {
         toggleEditor: toggleEditor,
