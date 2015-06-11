@@ -30,9 +30,7 @@ var AwesomeYjsModule = new AwesomeModule('linagora.esn.text-editor', {
           '../components/html-md/dist/md.min.js',
           '../components/file-saver.js/FileSaver.js',
           '../components/pdfmake/build/pdfmake.js',
-          '../components/pdfmake/build/vfs_fonts.js',
-          '../components/re-tree/re-tree.min.js',
-          '../components/ng-device-detector/ng-device-detector.min.js'
+          '../components/pdfmake/build/vfs_fonts.js'
         ],
         css: ['editor.css', '../components/quill/dist/quill.snow.css']
       };
