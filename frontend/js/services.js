@@ -95,8 +95,8 @@ angular.module('collaborative-editor')
     }
   ])
   .factory('collaborativeEditorDriver', ['properties', '$rootScope', 'yjsService',
-    'editorFactory', 'bindEditorService', '$log', '$window', 'eventCallbackService',
-    function(properties, $rootScope, yjsService, editorFactory, bindEditorService, $log, $window, eventCallbackService) {
+    'editorFactory', 'bindEditorService', '$log', '$window', 'eventCallbackService', 'saverFactory',
+    function(properties, $rootScope, yjsService, editorFactory, bindEditorService, $log, $window, eventCallbackService, saverFactory) {
       function showEditor() {
         if (!properties.quill) {
           wireEditor();
@@ -156,7 +156,52 @@ angular.module('collaborative-editor')
         });
       }
 
+      function registerCallbacksOnConferenceLeft() {
+        eventCallbackService.on('conferenceleft', function() {
+          var savers, buttons;
+          function addIdsIfMissing() {
+            var html = "";
+            if($('#editor').length === 0) {
+              html += '<div style="display: none" id="editor"></div>';
+            }
+            if($('#toolbar').length ===0) {
+              html += '<div style="display: none" id="toolbar"></div>';
+            }
+
+            if (html !== '') {
+              $('body').append(html);
+            }
+          })
+
+          addIdsIfMissing();
+
+          if (!properties.quill) {
+            wireEditor();
+          }
+          if (properties.newNotification && properties.quill.getText().trim().length > 0) {
+            savers = saverFactory.get();
+            buttons = savers.map(function(saver) {
+              return {
+                text: saver.name,
+                callback: function() {
+                  saver.export(editorFactory.getEditor());
+                }
+              };
+            });
+            return {
+              message: 'Did you save your notes?',
+              buttonMessage: 'Save as',
+              buttons: buttons,
+              urgency: 'question'
+            };
+          } else {
+            return [];
+          }
+        });
+      }
+
       enableNotification();
+      registerCallbacksOnConferenceLeft();
 
       eventCallbackService.on('beforeunload', function() {
         return properties.newNotification || (properties.quill && properties.quill.getText().trim().length > 0 && !properties.documentSaved) ?
