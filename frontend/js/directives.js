@@ -11,6 +11,7 @@ angular.module('collaborative-editor')
             tooltip: saver.tooltip,
             export: function() {
               saver.export(properties.quill);
+              properties.documentSaved = true;
             }
           });
         });

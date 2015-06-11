@@ -26,6 +26,7 @@ angular.module('collaborative-editor')
     return function() {
       return {
         quill: quill,
+        documentSaved: false,
         newNotification: false
       };
     };
@@ -94,8 +95,8 @@ angular.module('collaborative-editor')
     }
   ])
   .factory('collaborativeEditorDriver', ['properties', '$rootScope', 'yjsService',
-    'editorFactory', 'bindEditorService', '$log', '$window',
-    function(properties, $rootScope, yjsService, editorFactory, bindEditorService, $log, $window) {
+    'editorFactory', 'bindEditorService', '$log', '$window', 'eventCallbackService',
+    function(properties, $rootScope, yjsService, editorFactory, bindEditorService, $log, $window, eventCallbackService) {
       function showEditor() {
         if (!properties.quill) {
           wireEditor();
@@ -120,6 +121,10 @@ angular.module('collaborative-editor')
         $window.quill = properties.quill;
 
         bindEditorService(properties.quill, properties.connector, properties.y);
+
+        properties.quill.on(properties.quill.constructor.events.TEXT_CHANGE, function() {
+          properties.documentSaved = false;
+        });
       }
 
       function toggleEditor() {
@@ -146,11 +151,17 @@ angular.module('collaborative-editor')
         connector.addMessageListener(function(event) {
           if (y.val('editor') && y.val('editor').getText().trim() !== '') {
             properties.newNotification = true;
+            properties.documentSaved = false;
           }
         });
       }
 
       enableNotification();
+
+      eventCallbackService.on('beforeunload', function() {
+        return properties.newNotification || (properties.quill && properties.quill.getText().trim().length > 0 && !properties.documentSaved) ?
+          'There is an unsaved document in the collaborative editor, do you want to stay in the conference and save it?' : null;
+      });
 
       return {
         toggleEditor: toggleEditor,
