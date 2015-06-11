@@ -95,8 +95,8 @@ angular.module('collaborative-editor')
     }
   ])
   .factory('collaborativeEditorDriver', ['properties', '$rootScope', 'yjsService',
-    'editorFactory', 'bindEditorService', '$log', '$window', 'eventCallbackService', 'saverFactory',
-    function(properties, $rootScope, yjsService, editorFactory, bindEditorService, $log, $window, eventCallbackService, saverFactory) {
+    'editorFactory', 'bindEditorService', '$log', '$window', 'eventCallbackService', 'saverFactory', 'i18nService',
+    function(properties, $rootScope, yjsService, editorFactory, bindEditorService, $log, $window, eventCallbackService, saverFactory, i18nService) {
       function showEditor() {
         if (!properties.quill) {
           wireEditor();
@@ -206,10 +206,10 @@ angular.module('collaborative-editor')
       }
 
       function registerCallbacksOnBeforeUnload() {
-        eventCallbackService.on('beforeunload', function() {
-          return needSaving() ?
-            'There is an unsaved document in the collaborative editor, do you want to stay in the conference and save it?' :
-            null;
+        i18nService.__('There is an unsaved document in the collaborative editor, do you want to stay in the conference and save it?').then(function(text) {
+          eventCallbackService.on('beforeunload', function() {
+            return needSaving() ? text : null;
+          });
         });
       }
 

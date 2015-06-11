@@ -7,6 +7,15 @@ var expect = chai.expect;
 describe('Collaborative editor services', function() {
   var scope, $rootScope, $window, element, $compile;
   var eventCallbackService = {}, onCallback = {}, quillOnCallback, quillOnEvent;
+  var i18nService = {
+    __: function(key) {
+      return {
+        then: function(cb) {
+          cb(key);
+        }
+      }
+    }
+  };
 
   beforeEach(function () {
     module('collaborative-editor');
@@ -50,6 +59,7 @@ describe('Collaborative editor services', function() {
       });
 
       $provide.value('eventCallbackService', eventCallbackService);
+      $provide.value('i18nService', i18nService);
 
       eventCallbackService.on = chai.spy(function(event, cb) { onCallback[event] = cb; });
       eventCallbackService.off = chai.spy(function() {});

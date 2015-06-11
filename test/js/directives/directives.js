@@ -11,6 +11,15 @@ describe('collaborative editor directives', function() {
     on: function() {},
     off: function() {}
   };
+  var i18nService = {
+    __: function(key) {
+      return {
+        then: function(cb) {
+          cb(key);
+        }
+      }
+    }
+  };
 
   beforeEach(function () {
     module('collaborative-editor');
@@ -45,6 +54,7 @@ describe('collaborative editor directives', function() {
         };
       });
 
+      $provide.value('i18nService', i18nService);
       $provide.value('properties', properties);
       $provide.value('eventCallbackService', eventCallbackService);
       $provide.value('saverFactory', {
