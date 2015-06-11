@@ -17,29 +17,6 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    concat: {
-      options: {
-        separator: ''
-      },
-      dist: {
-        src: ['node_modules/hark/hark.bundle.js', 'src/js/**/*.js'],
-        dest: 'dist/awesome-collaborative-editor.all.js'
-      }
-    },
-    html2js: {
-      options: {
-        module: 'op.liveconference-templates',
-        singleModule: true,
-        useStrict: true,
-        jade: {
-          doctype: 'html'
-        }
-      },
-      main: {
-        src: ['src/templates/*.jade'],
-        dest: 'src/js/templates.js'
-      }
-    },
     jshint: {
       options: {
         jshintrc: '.jshintrc',
@@ -137,18 +114,10 @@ module.exports = function(grunt) {
         },
         src: ['Gruntfile-tests.js']
       }
-    },
-    watch: {
-      files: ['src/templates/*.jade', 'src/js/*.js'],
-      tasks: ['compile']
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-html2js');
   grunt.loadNpmTasks('grunt-gjslint');
   grunt.loadNpmTasks('grunt-lint-pattern');
   grunt.loadNpmTasks('grunt-run-grunt');
@@ -158,7 +127,6 @@ module.exports = function(grunt) {
   grunt.registerTask('test-frontend', ['run_grunt:frontend']);
   grunt.registerTask('test', ['linters', 'run_grunt:frontend']);
   grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'gjslint:all', 'lint_pattern:all']);
-  grunt.registerTask('templates', ['html2js']);
 
   /**
    * Usage:
@@ -167,6 +135,5 @@ module.exports = function(grunt) {
    */
   grunt.registerTask('linters-dev', 'Check changed files for lint', ['prepare-quick-lint', 'jshint:quick', 'gjslint:quick', 'lint_pattern:quick']);
 
-  grunt.registerTask('default', ['templates', 'test', 'concat:dist']);
-  grunt.registerTask('compile', ['templates', 'concat:dist']);
+  grunt.registerTask('default', ['test']);
 };

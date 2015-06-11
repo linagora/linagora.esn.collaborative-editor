@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('Collaborative editor services', function() {
   var scope, $rootScope, $window, element, $compile;
-
+  var eventCallbackService = {}, onCallback, quillOnCallback, quillOnEvent;
 
   beforeEach(function () {
     module('collaborative-editor');
@@ -48,6 +48,11 @@ describe('Collaborative editor services', function() {
           return true;
         };
       });
+
+      $provide.value('eventCallbackService', eventCallbackService);
+
+      eventCallbackService.on = chai.spy(function(event, cb) { onCallback = cb; });
+      eventCallbackService.off = chai.spy(function() {});
     });
   });
 
@@ -56,6 +61,14 @@ describe('Collaborative editor services', function() {
     $window = _$window_;
     $compile = _$compile_;
     scope = $rootScope.$new();
+
+    $window.Quill = function() {
+      return true;
+    };
+    $window.Quill.events = {
+      TEXT_CHANGE: 'text-change'
+    };
+    $window.Quill.prototype.on = chai.spy(function(event, cb) { quillOnEvent = event; quillOnCallback = cb; });
   }));
 
   describe('saverFactory', function() {
@@ -219,10 +232,16 @@ describe('Collaborative editor services', function() {
 
   describe('collaborativeEditorDriver', function() {
     var collaborativeEditorDriver, properties, yjsService;
+
     beforeEach(inject(function(_collaborativeEditorDriver_, _properties_, _yjsService_) {
       collaborativeEditorDriver = _collaborativeEditorDriver_;
       properties = _properties_;
       yjsService = _yjsService_;
+
+      properties.paneSize = {
+        width: 0,
+        height: 0
+      }
     }));
 
     it('should have toggleEditor', function() {
@@ -248,6 +267,75 @@ describe('Collaborative editor services', function() {
       expect(listener).to.be.a('function');
       listener();
       expect(properties.newNotification).to.be.true;
+    });
+
+    it('should set documentSaved=false on each message got', function() {
+      properties.documentSaved = true;
+      yjsService().connector.getMessageListeners()[0]();
+
+      expect(properties.documentSaved).to.be.false;
+    });
+
+    it('The wireEditor function should register a listener to quill TEXT_CHANGE event', function() {
+      collaborativeEditorDriver.showEditor();
+
+      expect(quillOnEvent).to.equal('text-change');
+      expect(properties.quill.on).to.be.have.been.called.once;
+    });
+
+    it('The listener to quill TEXT_CHANGE event should set documentSaved to false', function() {
+      properties.documentSaved = true;
+
+      collaborativeEditorDriver.showEditor();
+      quillOnCallback();
+
+      expect(properties.documentSaved).to.be.false;
+    });
+
+    it('should register a listener to eventCallbackService', function() {
+      expect(eventCallbackService.on).to.have.been.called.once;
+    });
+
+    it('The eventCallbackService listener should return a string when newNotification is true', function() {
+      properties.newNotification = true;
+
+      expect(onCallback()).to.be.a('string');
+    });
+
+    it('The eventCallbackService listener should return a string when there is an unsaved modification', function() {
+      properties.newNotification = false;
+      properties.documentSaved = false;
+      properties.quill = {
+        getText: function() {
+          return "Test";
+        }
+      };
+
+      expect(onCallback()).to.be.a('string');
+    });
+
+    it('The eventCallbackService listener should return nothing when there is no text', function() {
+      properties.newNotification = false;
+      properties.documentSaved = false;
+      properties.quill = {
+        getText: function() {
+          return "";
+        }
+      };
+
+      expect(onCallback()).to.not.exist;
+    });
+
+    it('The eventCallbackService listener should return nothing when there is no unsaved modification', function() {
+      properties.newNotification = false;
+      properties.documentSaved = true;
+      properties.quill = {
+        getText: function() {
+          return "Test";
+        }
+      };
+
+      expect(onCallback()).to.not.exist;
     });
   });
 });

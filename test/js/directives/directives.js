@@ -6,8 +6,11 @@ var expect = chai.expect;
 var assert = chai.assert;
 
 describe('collaborative editor directives', function() {
-  var scope, $rootScope, $window, element, $compile;
-
+  var scope, $rootScope, $window, element, $compile, properties = {};
+  var eventCallbackService = {
+    on: function() {},
+    off: function() {}
+  };
 
   beforeEach(function () {
     module('collaborative-editor');
@@ -41,6 +44,19 @@ describe('collaborative editor directives', function() {
           return true;
         };
       });
+
+      $provide.value('properties', properties);
+      $provide.value('eventCallbackService', eventCallbackService);
+      $provide.value('saverFactory', {
+        register: function() {},
+        get: function() {
+          return [{
+            name: 'test',
+            tooltip: 'test',
+            export: function() {}
+          }];
+        }
+      })
     });
   });
 
@@ -53,6 +69,7 @@ describe('collaborative editor directives', function() {
 
   describe('exportFacility', function() {
     var element;
+
     beforeEach(function() {
       element = angular.element(
         '<div export-facility></div>'
@@ -64,10 +81,18 @@ describe('collaborative editor directives', function() {
     it('should have scope.savers', function() {
       expect(element.scope().savers).to.be.an('array');
     });
+
     it('should have populated savers using the saverFacility', function() {
-      expect(element.scope().savers.length).to.equal(3);
+      expect(element.scope().savers.length).to.equal(1);
+    });
+
+    it('should set properties.documentSaved to false when a saver is triggered', function() {
+      scope.savers[0].export();
+
+      expect(properties.documentSaved).to.be.true;
     });
   });
+
   describe('liveConferenceEditorController', function() {
     beforeEach(function() {
       element = angular.element('<div live-conference-editor-controller></div>');
@@ -77,6 +102,10 @@ describe('collaborative editor directives', function() {
       $window.Quill = function() {
         return true;
       };
+      $window.Quill.events = {
+        TEXT_CHANGE: 'text-change'
+      };
+      $window.Quill.prototype.on = function() {};
     });
 
     it('should populate the scope', function() {
