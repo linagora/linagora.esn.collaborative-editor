@@ -186,16 +186,43 @@ angular.module('collaborative-editor')
           if (needSaving()) {
             savers = saverFactory.get();
             buttons = savers.map(function(saver) {
+              var faClass, text, isDefault;
+              switch(saver.name) {
+                case 'pdf':
+                  faClass = 'fa-file-pdf-o';
+                  text = "PDF";
+                  isDefault = true;
+                  break;
+                case 'text':
+                  faClass = 'fa-file-o';
+                  text = "Raw text";
+                  isDefault = false;
+                  break;
+                case 'markdown':
+                  faClass = 'fa-file-text-o';
+                  text = "Markdown";
+                  isDefault = false;
+                  break;
+                default:
+                  faClass = 'fa-file-o';
+                  text = "Unknown";
+                  isDefault = false;
+                  break;
+              }
               return {
-                text: saver.name,
+                beforeLink: '<i class="fa ' + faClass + '"></i>',
+                default: isDefault,
+                text: text,
                 callback: function() {
                   saver.export(editorFactory.getEditor());
                 }
               };
             });
             return {
-              message: 'Did you save your notes?',
-              buttonMessage: 'Save as',
+              onLeft: '<div class="text-editor-icon"></div>',
+              onRight: '<i class="fa fa-4x fa-question"></i>',
+              beforeButton: 'Hey! It seems you\'ve unsaved modifications in the collaborative editor. Save it as',
+              afterButton: '?',
               buttons: buttons,
               urgency: 'question'
             };
