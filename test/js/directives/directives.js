@@ -17,7 +17,18 @@ describe('collaborative editor directives', function() {
         then: function(cb) {
           cb(key);
         }
-      }
+      };
+    },
+    getCatalog: function() {
+      return {
+        then: function(cb) {
+          cb({
+            Markdown: 'Markdown',
+            'Raw text': 'Raw text',
+            'PDF': 'PDF'
+          });
+        }
+      };
     }
   };
 

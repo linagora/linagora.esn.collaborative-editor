@@ -1,14 +1,14 @@
 'use strict';
 
 angular.module('collaborative-editor')
-  .factory('saverFactory', [function() {
+  .factory('saverFactory', ['i18nService', function() {
     var savers = [];
     return {
-      register: function(name, tooltip, exportFunction) {
+      register: function(name, exportFunction, other) {
         savers.push({
           name: name,
-          tooltip: tooltip,
-          export: exportFunction
+          export: exportFunction,
+          other: other
         });
       },
       unregister: function(name) {
@@ -161,74 +161,52 @@ angular.module('collaborative-editor')
       }
 
       function registerCallbacksOnConferenceLeft() {
-        eventCallbackService.on('conferenceleft', function() {
-          var savers, buttons;
+        i18nService.getCatalog().then(function(catalog) {
+          eventCallbackService.on('conferenceleft', function() {
+            var savers, buttons;
 
-          function addIdsIfMissing() {
-            var html = '';
-            if ($('#editor').length === 0) {
-              html += '<div style="display: none" id="editor"></div>';
-            }
-            if ($('#toolbar').length === 0) {
-              html += '<div style="display: none" id="toolbar"></div>';
-            }
-
-            if (html !== '') {
-              $('body').append(html);
-            }
-          }
-
-          addIdsIfMissing();
-
-          if (!properties.quill) {
-            wireEditor();
-          }
-          if (needSaving()) {
-            savers = saverFactory.get();
-            buttons = savers.map(function(saver) {
-              var faClass, text, isDefault;
-              switch(saver.name) {
-                case 'pdf':
-                  faClass = 'fa-file-pdf-o';
-                  text = "PDF";
-                  isDefault = true;
-                  break;
-                case 'text':
-                  faClass = 'fa-file-o';
-                  text = "Raw text";
-                  isDefault = false;
-                  break;
-                case 'markdown':
-                  faClass = 'fa-file-text-o';
-                  text = "Markdown";
-                  isDefault = false;
-                  break;
-                default:
-                  faClass = 'fa-file-o';
-                  text = "Unknown";
-                  isDefault = false;
-                  break;
+            function addIdsIfMissing() {
+              var html = '';
+              if ($('#editor').length === 0) {
+                html += '<div style="display: none" id="editor"></div>';
               }
+              if ($('#toolbar').length === 0) {
+                html += '<div style="display: none" id="toolbar"></div>';
+              }
+
+              if (html !== '') {
+                $('body').append(html);
+              }
+            }
+
+            addIdsIfMissing();
+
+            if (!properties.quill) {
+              wireEditor();
+            }
+            if (needSaving()) {
+              savers = saverFactory.get();
+              buttons = savers.map(function(saver) {
+                return {
+                  beforeLink: '<i class="fa ' + saver.other.faClass + '"></i>',
+                  default: saver.other.default,
+                  text: saver.name,
+                  callback: function() {
+                    saver.export(editorFactory.getEditor());
+                  }
+                };
+              });
               return {
-                beforeLink: '<i class="fa ' + faClass + '"></i>',
-                default: isDefault,
-                text: text,
-                callback: function() {
-                  saver.export(editorFactory.getEditor());
-                }
+                onLeft: '<div class="text-editor-icon"></div>',
+                onRight: '<i class="fa fa-4x fa-question"></i>',
+                beforeButton: catalog['There is an unsaved document in the collaborative editor. Do you want to save it as'],
+                afterButton: '?',
+                buttons: buttons
               };
-            });
-            return {
-              onLeft: '<div class="text-editor-icon"></div>',
-              onRight: '<i class="fa fa-4x fa-question"></i>',
-              beforeButton: 'Hey! It seems you\'ve unsaved modifications in the collaborative editor. Save it as',
-              afterButton: '?',
-              buttons: buttons,
-              urgency: 'question'
-            };
-          } else {
-            return null;
-          }
+            } else {
+              return null;
+            }
+          });
         });
       }
 

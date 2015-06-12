@@ -8,7 +8,7 @@ angular.module('collaborative-editor')
         saverFactory.get().forEach(function(saver) {
           scope.savers.push({
             name: saver.name,
-            tooltip: saver.tooltip,
+            other: saver.other,
             export: function() {
               saver.export(properties.quill);
               properties.documentSaved = true;
