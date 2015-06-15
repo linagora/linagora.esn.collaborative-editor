@@ -8,7 +8,7 @@ angular.module('collaborative-editor')
 
       $window.saveAs(blob, 'meeting.txt');
     }
-    i18nService.getCatalog().then(function(catalog) {
-      saverFactory.register(catalog['Raw text'], generate, {faClass: 'fa-file-o'});
+    i18nService.__('Raw text').then(function(rawTextString) {
+      saverFactory.register(rawTextString, generate, {faClass: 'fa-file-o'});
     });
   }]);

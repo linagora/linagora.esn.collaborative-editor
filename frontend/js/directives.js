@@ -98,8 +98,8 @@ angular.module('collaborative-editor')
   .directive('editorClickHandler', ['properties', function(properties) {
     return {
       restrict: 'A',
-      link: function (scope, element, attrs) {
-        element.click(function () {
+      link: function(scope, element, attrs) {
+        element.click(function() {
           var quillSelection, start, end, quill = properties.quill;
           if (quill) {
             quillSelection = quill.getSelection();
@@ -110,10 +110,7 @@ angular.module('collaborative-editor')
             } else {
               start = end = quill.getLength() - 1;
             }
-            console.log(typeof start);
-            console.log(typeof end);
 
-            console.log(start, end);
             quill.setSelection(start, end);
           }
         });

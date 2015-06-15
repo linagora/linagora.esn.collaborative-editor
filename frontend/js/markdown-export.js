@@ -10,7 +10,7 @@ angular.module('collaborative-editor')
       $window.saveAs(blob, 'meeting.md');
     }
 
-    i18nService.getCatalog().then(function(catalog) {
-      saverFactory.register(catalog.Markdown, generate, {faClass: 'fa-file-text-o'});
+    i18nService.__('Markdown').then(function(markdownString) {
+      saverFactory.register(markdownString, generate, {faClass: 'fa-file-text-o'});
     });
   }]);

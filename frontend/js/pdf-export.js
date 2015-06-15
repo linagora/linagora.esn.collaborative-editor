@@ -96,8 +96,8 @@ angular.module('collaborative-editor')
         $window.pdfMake.createPdf({content: paragraphs}).download();
       }
 
-      i18nService.getCatalog().then(function(catalog) {
-        saverFactory.register(catalog.PDF, generate, {
+      i18nService.__('PDF').then(function(pdfString) {
+        saverFactory.register(pdfString, generate, {
           faClass: 'fa-file-pdf-o',
           default: true
         });
