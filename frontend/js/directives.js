@@ -99,17 +99,21 @@ angular.module('collaborative-editor')
     return {
       restrict: 'A',
       link: function (scope, element, attrs) {
-        $(element).click(function () {
+        element.click(function () {
           var quillSelection, start, end, quill = properties.quill;
           if (quill) {
             quillSelection = quill.getSelection();
-            if (quillSelection) {
+
+            if (quillSelection !== null) {
               start = quillSelection.start;
               end = quillSelection.end;
             } else {
               start = end = quill.getLength() - 1;
             }
+            console.log(typeof start);
+            console.log(typeof end);
 
+            console.log(start, end);
             quill.setSelection(start, end);
           }
         });

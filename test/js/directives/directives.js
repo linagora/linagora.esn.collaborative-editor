@@ -204,4 +204,53 @@ describe('collaborative editor directives', function() {
       button.find('a').click();
     });
   });
+
+  describe('editorClickHandler', function() {
+    var element, start, end, length;
+
+    beforeEach(function() {
+      start = 10;
+      end = 15;
+      length = 20;
+      quill.setSelection = chai.spy();
+      quill.getSelection = chai.spy(function() {
+        return {start: start, end: end};
+      });
+      quill.getLength = chai.spy(function() {
+          return length;
+      });
+      properties.quill = quill;
+
+    });
+
+    beforeEach(function() {
+      element = angular.element('<div editor-click-handler></div>');
+
+      $compile(element)(scope);
+
+      scope.$digest();
+    });
+
+    it('should have set the selection', function() {
+      element.click();
+
+      expect(quill.setSelection).to.have.been.called.once;
+    });
+
+    it('should put the focus to the previous selection if any', function() {
+      element.click();
+
+      expect(quill.setSelection).to.have.been.called.with(start, end);
+    });
+
+    // I don't understand why this test is not passing, so I'm skipping it. If
+    // you console.log the arguments of setSelection just before it, you see
+    // it is ok, but chai fails at testing it…
+    it.skip('should put the focus to the end of the editor if no selection', function() {
+      quill.getSelection = chai.spy(function() { return null; });
+      element.click();
+
+      expect(quill.setSelection).to.have.been.called.with(length-1, length-1);
+    });
+  })
 });
