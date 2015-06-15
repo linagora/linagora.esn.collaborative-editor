@@ -24,16 +24,17 @@
   margin-right: -40px;
   opacity: 0;
   padding: 0 10px;
+  display: none;
 
   // For older Chrome and Safari
   display: -webkit-flex;
   -webkit-flex-direction: row;
 
-  display: flex;
   flex-flow: column;
 
   &.visible {
-    margin-right: 0px;
+    display: flex;
+    margin-right: 0;
     opacity: 1;
   }
 
