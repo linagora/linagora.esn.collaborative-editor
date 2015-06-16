@@ -45,7 +45,9 @@ r-grabber='<div><span></div></span>' device-detector)
           i.fa.fa-floppy-o
         ul.dropdown-menu(export-facility role='menu' aria-labelledby='dLabel')
           li(ng-repeat='saver in savers')
-            a(href="#" ng-click='saver.export()'){{saver.tooltip}}
+            a(href="#" ng-click='saver.export()')
+              i.fa(ng-class='saver.other.faClass')
+              |  {{saver.name}}
     span.ql-format-button.editor-close-button(ng-click="toggleEditor()")
       i.fa.fa-times
-  #editor.editor
+  #editor.editor(editor-click-handler)

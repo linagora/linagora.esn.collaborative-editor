@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('collaborative-editor')
-  .run(['QUILL_TO_PDFMAKE_STYLE_EQUIVALENCE', '$window', 'saverFactory',
-    function(QUILL_TO_PDFMAKE_STYLE_EQUIVALENCE, $window, saverFactory) {
+  .run(['QUILL_TO_PDFMAKE_STYLE_EQUIVALENCE', '$window', 'saverFactory', 'i18nService',
+    function(QUILL_TO_PDFMAKE_STYLE_EQUIVALENCE, $window, saverFactory, i18nService) {
       function generate(editor) {
         var deltas = editor.getContents().ops;
         var processLater = [];
@@ -96,6 +96,11 @@ angular.module('collaborative-editor')
         $window.pdfMake.createPdf({content: paragraphs}).download();
       }
 
-      saverFactory.register('pdf', 'Save as pdf', generate);
+      i18nService.__('PDF').then(function(pdfString) {
+        saverFactory.register(pdfString, generate, {
+          faClass: 'fa-file-pdf-o',
+          default: true
+        });
+      });
     }
   ]);

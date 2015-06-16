@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('collaborative-editor')
-  .run(['$window', 'saverFactory', function($window, saverFactory) {
+  .run(['$window', 'saverFactory', 'i18nService', function($window, saverFactory, i18nService) {
     function generate(editor) {
       var html = editor.getHTML();
       var markdown = $window.md(html),
@@ -10,5 +10,7 @@ angular.module('collaborative-editor')
       $window.saveAs(blob, 'meeting.md');
     }
 
-    saverFactory.register('markdown', 'Save as markdown', generate);
+    i18nService.__('Markdown').then(function(markdownString) {
+      saverFactory.register(markdownString, generate, {faClass: 'fa-file-text-o'});
+    });
   }]);

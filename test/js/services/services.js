@@ -13,7 +13,18 @@ describe('Collaborative editor services', function() {
         then: function(cb) {
           cb(key);
         }
-      }
+      };
+    },
+    getCatalog: function() {
+      return {
+        then: function(cb) {
+          cb({
+            Markdown: 'Markdown',
+            'Raw text': 'Raw text',
+            'PDF': 'PDF'
+          });
+        }
+      };
     }
   };
 
@@ -397,7 +408,6 @@ describe('Collaborative editor services', function() {
       properties.newNotification = true;
       callback = onCallback.conferenceleft();
 
-      expect(callback).to.have.property('message');
       expect(callback).to.have.property('buttons')
         .and.be.an('array');
 

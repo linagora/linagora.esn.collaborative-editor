@@ -8,7 +8,7 @@ angular.module('collaborative-editor')
         saverFactory.get().forEach(function(saver) {
           scope.savers.push({
             name: saver.name,
-            tooltip: saver.tooltip,
+            other: saver.other,
             export: function() {
               saver.export(properties.quill);
               properties.documentSaved = true;
@@ -94,4 +94,26 @@ angular.module('collaborative-editor')
         templateUrl: 'editor/views/button.html'
       };
     }
-  ]);
+  ])
+  .directive('editorClickHandler', ['properties', function(properties) {
+    return {
+      restrict: 'A',
+      link: function(scope, element, attrs) {
+        element.click(function() {
+          var quillSelection, start, end, quill = properties.quill;
+          if (quill) {
+            quillSelection = quill.getSelection();
+
+            if (quillSelection !== null) {
+              start = quillSelection.start;
+              end = quillSelection.end;
+            } else {
+              start = end = quill.getLength() - 1;
+            }
+
+            quill.setSelection(start, end);
+          }
+        });
+      }
+    };
+  }]);

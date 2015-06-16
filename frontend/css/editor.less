@@ -24,16 +24,17 @@
   margin-right: -40px;
   opacity: 0;
   padding: 0 10px;
+  display: none;
 
   // For older Chrome and Safari
   display: -webkit-flex;
   -webkit-flex-direction: row;
 
-  display: flex;
   flex-flow: column;
 
   &.visible {
-    margin-right: 0px;
+    display: flex;
+    margin-right: 0;
     opacity: 1;
   }
 
@@ -66,6 +67,10 @@
     box-shadow: @editor_shadows;
     margin-bottom: 10px;
     height: auto;
+  }
+
+  .dropdown ul>li {
+    text-align: left;
   }
 
 }
@@ -152,4 +157,14 @@
       animation-iteration-count: 1;
     }
   }
+}
+
+.text-editor-icon {
+  background: url('/editor/images/document-edit.svg') no-repeat left top;
+  background-size: contain;
+  width: 4em;
+  height: 4em;
+}
+.exit-page-question {
+  color: #3331ea;
 }
