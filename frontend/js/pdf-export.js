@@ -93,7 +93,7 @@ angular.module('collaborative-editor')
           }
         });
 
-        $window.pdfMake.createPdf({content: paragraphs}).download();
+        $window.pdfMake.createPdf({content: paragraphs}).download('meeting.pdf');
       }
 
       i18nService.__('PDF').then(function(pdfString) {
