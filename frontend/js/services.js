@@ -95,8 +95,10 @@ angular.module('collaborative-editor')
     }
   ])
   .factory('collaborativeEditorDriver', ['properties', '$rootScope', 'yjsService',
-    'editorFactory', 'bindEditorService', '$log', '$window', 'eventCallbackService', 'saverFactory', 'i18nService',
-    function(properties, $rootScope, yjsService, editorFactory, bindEditorService, $log, $window, eventCallbackService, saverFactory, i18nService) {
+    'editorFactory', 'bindEditorService', '$log', '$window', 'eventCallbackService', 'saverFactory', 'i18nService', 'easyRTCService',
+    'DEBUG_MESSAGE',
+    function(properties, $rootScope, yjsService, editorFactory, bindEditorService, $log,
+             $window, eventCallbackService, saverFactory, i18nService, easyRTCService, DEBUG_MESSAGE) {
       function showEditor() {
         if (!properties.quill) {
           wireEditor();
@@ -217,6 +219,15 @@ angular.module('collaborative-editor')
         });
       }
 
+      function replyOnAskWholeContent() {
+        easyRTCService.addPeerListener(function(sendersEasyrtcid, msgType) {
+          if (msgType === DEBUG_MESSAGE.ask_for_content) {
+            easyRTCService.sendData(sendersEasyrtcid, DEBUG_MESSAGE.get_content,
+              { ops: properties.y.val('editor').getDelta() });
+          }
+        });
+      }
+      replyOnAskWholeContent();
       enableNotification();
       registerCallbacksOnConferenceLeft();
       registerCallbacksOnBeforeUnload();

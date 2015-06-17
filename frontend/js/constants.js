@@ -21,4 +21,8 @@ angular.module('collaborative-editor')
       'strike': 'lineThrough',
       'underline': 'underline'
     }
+  })
+  .constant('DEBUG_MESSAGE', {
+    'ask_for_content': 'collaborative-editor:debug:ask for content',
+    'get_content': 'collaborative-editor:debug:get content'
   });
