@@ -13,5 +13,6 @@ angular.module('collaborative-editor')
     'align': 'alignment',
     'bullet': 'bullet',
     'list': 'list',
-    'color': 'color'
+    'color': 'color',
+    'background': 'background'
   });
