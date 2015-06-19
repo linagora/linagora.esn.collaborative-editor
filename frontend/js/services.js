@@ -199,8 +199,7 @@ angular.module('collaborative-editor')
               return {
                 onLeft: '<div class="text-editor-icon"></div>',
                 onRight: '<i class="fa fa-4x fa-question"></i>',
-                beforeButton: catalog['There is an unsaved document in the collaborative editor. Do you want to save it as'],
-                afterButton: '?',
+                beforeButton: catalog['There is an unsaved document in the collaborative editor. Save it now to prevent data loss.'],
                 buttons: buttons
               };
             } else {
