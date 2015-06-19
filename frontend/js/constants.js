@@ -6,13 +6,19 @@ angular.module('collaborative-editor')
     height: 100
   })
   .constant('QUILL_TO_PDFMAKE_STYLE_EQUIVALENCE', {
-    'bold': 'bold',
-    'underline' : 'underline',
-    'italic': 'italics',
-    'size': 'fontSize',
-    'align': 'alignment',
-    'bullet': 'bullet',
-    'list': 'list',
-    'color': 'color',
-    'background': 'background'
+    formats: {
+      'bold': 'bold',
+      'underline': 'underline',
+      'italic': 'italics',
+      'size': 'fontSize',
+      'align': 'alignment',
+      'bullet': 'bullet',
+      'list': 'list',
+      'color': 'color',
+      'background': 'background'
+    },
+    decoration: {
+      'strike': 'lineThrough',
+      'underline': 'underline'
+    }
   });
