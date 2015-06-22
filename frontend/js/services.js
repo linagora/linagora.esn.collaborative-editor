@@ -95,10 +95,10 @@ angular.module('collaborative-editor')
     }
   ])
   .factory('collaborativeEditorDriver', ['properties', '$rootScope', 'yjsService',
-    'editorFactory', 'bindEditorService', '$log', '$window', 'eventCallbackService', 'saverFactory', 'i18nService', 'easyRTCService',
-    'DEBUG_MESSAGE',
+    'editorFactory', 'bindEditorService', '$log', '$window', 'eventCallbackService',
+    'saverFactory', 'i18nService', 'easyRTCService', 'DEBUG_MESSAGE', 'contentGetters',
     function(properties, $rootScope, yjsService, editorFactory, bindEditorService, $log,
-             $window, eventCallbackService, saverFactory, i18nService, easyRTCService, DEBUG_MESSAGE) {
+             $window, eventCallbackService, saverFactory, i18nService, easyRTCService, DEBUG_MESSAGE, contentGetters) {
       function showEditor() {
         if (!properties.quill) {
           wireEditor();
@@ -220,13 +220,26 @@ angular.module('collaborative-editor')
       }
 
       function replyOnAskWholeContent() {
-        easyRTCService.addPeerListener(function(sendersEasyrtcid, msgType) {
-          if (msgType === DEBUG_MESSAGE.ask_for_content) {
-            easyRTCService.sendData(sendersEasyrtcid, DEBUG_MESSAGE.get_content,
-              { ops: properties.y.val('editor').getDelta() });
+        easyRTCService.setPeerListener(function(sendersEasyrtcid, msgType, msgData) {
+          var source = JSON.parse(msgData);
+
+          function reply(promise) {
+            promise().then(function (html) {
+              easyRTCService.sendData(sendersEasyrtcid, DEBUG_MESSAGE.reply, {content: html});
+            }, function (error) {
+              easyRTCService.sendData(sendersEasyrtcid, DEBUG_MESSAGE.reply, {error: error});
+            });
           }
-        });
+
+          if (source === 'yjs') {
+            reply(contentGetters.yjs);
+          } else if (source === 'quill') {
+            reply(contentGetters.quill);
+          }
+
+        }, DEBUG_MESSAGE.ask);
       }
+
       replyOnAskWholeContent();
       enableNotification();
       registerCallbacksOnConferenceLeft();

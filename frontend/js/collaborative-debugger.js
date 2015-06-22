@@ -1,8 +1,72 @@
 'use strict';
 
 angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs'])
-  .factory('collabDebugger', ['yjsService', 'currentConferenceState', 'editorFactory', '$window',
-    function(yjsService, currentConferenceState, editorFactory, $window) {
+  .factory('contentsToHtml', ['$window', function($window) {
+    var quill, container = angular.element('<div></div>').get(0);
+    return function(contents) {
+      quill = quill || new $window.Quill(container);
+      quill.setContents(contents);
+      return quill.getHTML();
+    };
+  }]).factory('contentGetters', ['yjsService', '$q', 'editorFactory', 'contentsToHtml', 'easyRTCService', 'DEBUG_MESSAGE',
+    function(yjsService, $q, editorFactory, contentsToHtml, easyRTCService, DEBUG_MESSAGE) {
+      var getYjsContents = function () {
+        return $q(function (resolve, reject) {
+          var html, content;
+          if (!yjsService().y) {
+            throw new Error('This should not happen.');
+          } else if (!yjsService().y.val('editor')) {
+            reject('Editor object does no exist');
+          } else {
+            content = {ops: yjsService().y.val('editor').getDelta()};
+            html = contentsToHtml(content);
+            resolve(html);
+          }
+        });
+      };
+
+      var getQuillContents = function () {
+
+        return $q(function (resolve, reject) {
+          var html;
+          if (editorFactory.getEditor() && editorFactory.getEditor().getHTML) {
+            html = editorFactory.getEditor().getHTML();
+            resolve(html);
+          } else {
+            reject('An error ocurred while getting Quill content');
+          }
+
+        });
+      };
+
+      function getRemote(peerId, source) {
+
+        return function () {
+          return $q(function (resolve, reject) {
+            function listener(sendersEasyrtcid, msgType, msgData) {
+              var data = JSON.parse(msgData);
+              if (data.error) {
+                reject(data.error);
+              } else {
+                resolve(data.content);
+              }
+            }
+
+            easyRTCService.setPeerListener(listener, DEBUG_MESSAGE.reply, peerId);
+            easyRTCService.sendData(peerId, DEBUG_MESSAGE.ask, source);
+          });
+        };
+      }
+
+      return {
+        quill: getQuillContents,
+        yjs: getYjsContents,
+        getRemote: getRemote
+      };
+    }
+  ])
+  .factory('collabDebugger', ['yjsService', 'currentConferenceState',
+    function(yjsService, currentConferenceState) {
       var compare = false;
       function yjsPeers() {
         var id, peers = [],
@@ -16,97 +80,86 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs'])
         }
         return peers;
       }
-      var getYjsContents = function() {
-        if (yjsService().y && yjsService().y.val && yjsService().y.val('editor')) {
-          return { ops: yjsService().y.val('editor').getDelta() };
-        } else {
-          return { ops: [ { insert: 'Yjs is not ready!'} ]};
-        }
-      };
-
-      var getQuillContents = function() {
-        return editorFactory.getEditor().getContents();
-      };
 
       var yjs = yjsService().y;
-
-      function fillYjsContents(element) {
-        element.setContents(getYjsContents());
-      }
-      function fillQuillContents(element) {
-        element.setContents(getQuillContents());
-      }
 
       function peerName(id) {
         return currentConferenceState.getAttendeeByEasyrtcid(id).displayName;
       }
 
+      function fill(promise, title, container) {
+        container.title = title;
+        promise().then(function(html) {
+          container.content = html;
+          container.class = 'success';
+        }, function(error) {
+          container.content = error;
+          container.class = 'error';
+        });
+      }
 
       var service = {
         compare: compare,
         peers: yjsPeers,
         yjs: yjs,
-        fillYjsContents: fillYjsContents,
-        fillQuillContents: fillQuillContents,
+        fill: fill,
         peerName: peerName
       };
 
       return service;
     }
-  ]).directive('collabDebugLauncher', ['collabDebugger', '$modal', 'easyRTCService', 'DEBUG_MESSAGE', function(collabDebug, $modal, easyRTCService, DEBUG_MESSAGE) {
+  ]).directive('collabDebugLauncher', ['collabDebugger', '$modal', 'contentGetters',
+    function(collabDebug, $modal, contentGetters) {
     return {
       restrict: 'E',
       template: '',
       link: function(scope, element) {
         function onClick() {
+          var remoteTitle, localTitle;
           scope.peers = collabDebug.peers();
           scope.sharedValues = collabDebug.yjs.val();
           scope.showCompare = false;
+          function buildObject() {
+            return {
+              title: '',
+              content: '',
+              class: ''
+            };
+          }
+          scope.left = buildObject();
+          scope.right = buildObject();
 
           scope.toggleCompareQuillYjs = function() {
             scope.showCompare = !scope.showCompare;
             if (scope.showCompare) {
-              initIfAbsent();
-              scope.leftTitle = 'Yjs';
-              scope.rightTitle = 'Quill';
-
-              collabDebug.fillYjsContents(scope.left);
-              collabDebug.fillQuillContents(scope.right);
+              collabDebug.fill(contentGetters.yjs, 'Yjs', scope.left);
+              collabDebug.fill(contentGetters.quill, 'Quill', scope.right);
             }
           };
 
-          scope.toggleCompareOwnAndRemote = function(peerId) {
-            var listener;
+          scope.toggleCompareOwnAndRemote = function(peerId, source) {
+            var promise, source = source.toLowerCase();
             scope.showCompare = !scope.showCompare;
 
             if (scope.showCompare) {
-              initIfAbsent();
-              scope.leftTitle = 'Yjs (local)';
-              scope.rightTitle = 'Yjs (remote: ' + collabDebug.peerName(peerId) + ')';
+              localTitle = 'Yjs (local)';
+              remoteTitle = source + ' (remote: ' + collabDebug.peerName(peerId) + ')';
 
-              scope.right.setContents({ops: [{insert: 'Waiting for remote peer…'}]});
+              scope.right.content = 'Waiting for remote peer';
+              scope.right.class = 'waiting';
 
-              easyRTCService.addPeerListener(function(sendersEasyrtcid, msgType, msgData) {
-                if (msgType === DEBUG_MESSAGE.get_content && sendersEasyrtcid === peerId) {
-                  scope.right.setContents(JSON.parse(msgData));
-                }
-                easyRTCService.removePeerListener(listener);
-              });
+              if (source === 'quill') {
+                promise = contentGetters.getRemote(peerId, 'quill');
+              } else if (source === 'yjs') {
+                promise = contentGetters.getRemote(peerId, 'yjs');
+              } else {
+                throw new Error('Unexpected source: ' + source);
+              }
 
-              easyRTCService.sendData(peerId, DEBUG_MESSAGE.ask_for_content, '');
-
-              collabDebug.fillYjsContents(scope.left);
+              collabDebug.fill(contentGetters.yjs, localTitle, scope.left);
+              collabDebug.fill(promise, remoteTitle, scope.right);
             }
           };
-
-          function initIfAbsent() {
-            if (!scope.left) {
-              scope.left = new Quill('.side-by-side .left .container');
-            }
-            if (!scope.right) {
-              scope.right = new Quill('.side-by-side .right .container');
-            }
-          }
 
           $modal({
             scope: scope,

@@ -23,6 +23,6 @@ angular.module('collaborative-editor')
     }
   })
   .constant('DEBUG_MESSAGE', {
-    'ask_for_content': 'collaborative-editor:debug:ask for content',
-    'get_content': 'collaborative-editor:debug:get content'
+    'ask': 'collaborative-editor:debug:ask for content',
+    'reply': 'collaborative-editor:debug:reply content'
   });
