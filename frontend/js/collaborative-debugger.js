@@ -67,7 +67,6 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs'])
   ])
   .factory('collabDebugger', ['yjsService', 'currentConferenceState',
     function(yjsService, currentConferenceState) {
-      var compare = false;
       function yjsPeers() {
         var id, peers = [],
           connections = yjsService().connector.connections;
@@ -88,8 +87,19 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs'])
       }
 
       function fill(promise, title, container) {
+        var prom;
+        var error = new Error('expected first parameter to be a promise');
+        if (!angular.isFunction(promise)) {
+          throw error;
+        } else {
+          prom = promise();
+          if (!angular.isFunction(prom.then)) {
+            throw error;
+          }
+        }
+
         container.title = title;
-        promise().then(function(html) {
+        prom.then(function(html) {
           container.content = html;
           container.class = 'success';
         }, function(error) {
@@ -99,7 +109,6 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs'])
       }
 
       var service = {
-        compare: compare,
         peers: yjsPeers,
         yjs: yjs,
         fill: fill,

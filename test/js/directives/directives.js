@@ -7,6 +7,7 @@ var assert = chai.assert;
 
 describe('collaborative editor directives', function() {
   var scope, $rootScope, $window, element, $compile, properties = {};
+  var quillOnEvent, quillOnCallback, previousQuill;
   var eventCallbackService = {
     on: function() {},
     off: function() {}
@@ -53,16 +54,23 @@ describe('collaborative editor directives', function() {
           };
         };
       });
-      $provide.provider('currentConferenceState', function () {
-        this.$get = function () {
-          return function() {}
+      $provide.value('contentGetters', function() {
+        function empty() { return ''; }
+        return {
+          quill: empty,
+          yjs: empty,
+          getRemote: empty
         };
       });
+      $provide.value('currentConferenceState', function() {
+        return function() {};
+      });
+      $provide.value('easyRTCService', {
+        setPeerListener: function() {}
+      });
 
-      $provide.provider('attendeeColorsService', function () {
-        this.$get = function () {
-          return true;
-        };
+      $provide.value('attendeeColorsService', function () {
+        return true;
       });
 
       $provide.value('i18nService', i18nService);
@@ -77,16 +85,35 @@ describe('collaborative editor directives', function() {
             export: function() {}
           }];
         }
-      })
+      });
+
     });
   });
 
-  beforeEach(inject(function (_$rootScope_, _$window_, _$compile_) {
+  beforeEach(inject(function (_$rootScope_, _$compile_, _$window_) {
     $rootScope = _$rootScope_;
-    $window = _$window_;
     $compile = _$compile_;
     scope = $rootScope.$new();
+    function Quill() {
+      return true;
+    }
+
+    Quill.events = {
+      TEXT_CHANGE: 'text-change'
+    };
+
+    Quill.prototype.on = chai.spy(function(event, cb) {
+      quillOnEvent = event;
+      quillOnCallback = cb;
+    });
+    $window = _$window_;
+    previousQuill = $window.Quill;
+    $window.Quill = Quill;
   }));
+
+  afterEach(function() {
+    $window.Quill = previousQuill;
+  });
 
   describe('exportFacility', function() {
     var element;
@@ -119,14 +146,6 @@ describe('collaborative editor directives', function() {
       element = angular.element('<div live-conference-editor-controller></div>');
       $compile(element)(scope);
       scope.$digest();
-
-      $window.Quill = function() {
-        return true;
-      };
-      $window.Quill.events = {
-        TEXT_CHANGE: 'text-change'
-      };
-      $window.Quill.prototype.on = function() {};
     });
 
     it('should populate the scope', function() {
@@ -136,7 +155,6 @@ describe('collaborative editor directives', function() {
       expect(localScope.properties.paneSize).to.exist;
       expect(localScope.properties.editor_visible).to.be.false;
       expect(localScope.toggleEditor).to.exist;
-      expect(localScope.closeEditor).to.exist;
 
     });
 
