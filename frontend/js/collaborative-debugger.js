@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs'])
+angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.ngStrap'])
   .factory('contentsToHtml', ['$window', function($window) {
     var quill, container = angular.element('<div></div>').get(0);
     return function(contents) {
@@ -123,60 +123,72 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs'])
       restrict: 'E',
       template: '',
       link: function(scope, element) {
-        function onClick() {
-          var remoteTitle, localTitle;
-          scope.peers = collabDebug.peers();
-          scope.sharedValues = collabDebug.yjs.val();
-          scope.showCompare = false;
-          function buildObject() {
-            return {
-              title: '',
-              content: '',
-              class: ''
-            };
+        var remoteTitle, localTitle;
+
+        var newScope = scope.$new();
+        newScope.showCompare = false;
+
+        function buildObject() {
+          return {
+            title: '',
+            content: '',
+            class: ''
+          };
+        }
+        newScope.left = buildObject();
+        newScope.right = buildObject();
+
+        newScope.toggleCompareQuillYjs = function() {
+          newScope.showCompare = !newScope.showCompare;
+          if (newScope.showCompare) {
+            collabDebug.fill(contentGetters.yjs, 'Yjs', newScope.left);
+            collabDebug.fill(contentGetters.quill, 'Quill', newScope.right);
           }
-          scope.left = buildObject();
-          scope.right = buildObject();
+        };
 
-          scope.toggleCompareQuillYjs = function() {
-            scope.showCompare = !scope.showCompare;
-            if (scope.showCompare) {
-              collabDebug.fill(contentGetters.yjs, 'Yjs', scope.left);
-              collabDebug.fill(contentGetters.quill, 'Quill', scope.right);
+        newScope.toggleCompareOwnAndRemote = function(peerId, source) {
+          var promise;
+          if (!peerId) {
+            throw new Error('missing first argument');
+          } else if (!source) {
+            throw new Error('missing second argument');
+          } else {
+            source = source.toLowerCase();
+            if (source !== 'quill' && source !== 'yjs') {
+              throw new Error('unknown source');
             }
-          };
+          }
 
-          scope.toggleCompareOwnAndRemote = function(peerId, source) {
-            var promise, source = source.toLowerCase();
-            scope.showCompare = !scope.showCompare;
+          newScope.showCompare = !newScope.showCompare;
 
-            if (scope.showCompare) {
-              localTitle = 'Yjs (local)';
-              remoteTitle = source + ' (remote: ' + collabDebug.peerName(peerId) + ')';
+          if (newScope.showCompare) {
+            localTitle = 'Yjs (local)';
+            remoteTitle = source + ' (remote: ' + collabDebug.peerName(peerId) + ')';
 
-              scope.right.content = 'Waiting for remote peer';
-              scope.right.class = 'waiting';
+            newScope.right.content = 'Waiting for remote peer';
+            newScope.right.class = 'waiting';
 
-              if (source === 'quill') {
-                promise = contentGetters.getRemote(peerId, 'quill');
-              } else if (source === 'yjs') {
-                promise = contentGetters.getRemote(peerId, 'yjs');
-              } else {
-                throw new Error('Unexpected source: ' + source);
-              }
-
-              collabDebug.fill(contentGetters.yjs, localTitle, scope.left);
-              collabDebug.fill(promise, remoteTitle, scope.right);
+            if (source === 'quill') {
+              promise = contentGetters.getRemote(peerId, 'quill');
+            } else if (source === 'yjs') {
+              promise = contentGetters.getRemote(peerId, 'yjs');
+            } else {
+              throw new Error('Unexpected source: ' + source);
             }
-          };
+
+            collabDebug.fill(contentGetters.yjs, localTitle, newScope.left);
+            collabDebug.fill(promise, remoteTitle, newScope.right);
+          }
+        };
+        scope.onClick = function() {
+          newScope.peers = collabDebug.peers();
+          newScope.sharedValues = collabDebug.yjs.val();
 
           $modal({
-            scope: scope,
+            scope: newScope,
             template: '/editor/views/devmode-dialog.html'
           });
-        }
-
-        element.on('click', onClick);
+        };
       }
     };
   }]);

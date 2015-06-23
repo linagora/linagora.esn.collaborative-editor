@@ -22,7 +22,8 @@ describe('The collaborative debugger', function() {
         return messageListeners;
       }
     }, easyRTCService = {},
-    currentConferenceStateMock = {};
+    currentConferenceStateMock = {},
+    modalMock;
 
 
   beforeEach(function() {
@@ -63,6 +64,11 @@ describe('The collaborative debugger', function() {
         }
       };
       $provide.value('currentConferenceState', currentConferenceStateMock);
+
+      $provide.value('$modal', function() {
+        modalMock.apply(modalMock, arguments);
+      });
+
     });
   });
 
@@ -78,7 +84,7 @@ describe('The collaborative debugger', function() {
     });
   });
 
-  describe.only('The services', function() {
+  describe('The services', function() {
     var content, expected;
 
     beforeEach(function() {
@@ -347,32 +353,131 @@ describe('The collaborative debugger', function() {
   });
 
   describe('The directive', function() {
+    var scope, $rootScope, element, $modal, localScope, modalScope, collabDebug;
     describe('collabDebugLauncher', function() {
-      it('should be triggered on a click event', function() {
 
+      beforeEach(angular.mock.inject(function(_$rootScope_, _$modal_, $compile, _collabDebugger_) {
+        $rootScope = _$rootScope_;
+        scope = $rootScope.$new();
+        $modal = _$modal_;
+        collabDebug = _collabDebugger_;
+
+        element = angular.element('<collab-debug-launcher ng-click="onClick()"></collab-debug-launcher>');
+
+        $compile(element)(scope);
+        scope.$digest();
+
+        localScope = element.scope();
+
+      }));
+
+      beforeEach(function() {
+        modalMock = function(params) {
+          expect(params.scope).to.exist;
+          expect(params.template).to.exist;
+
+          modalScope = params.scope;
+        };
+
+        collabDebug.yjs = {
+          val: function() {
+            return {
+              'foo': null,
+              'bar': null
+            };
+          }
+        };
       });
 
-      it('should pop a modal', function() {
+      it('should create a modal on click with the good the scope', function() {
+        modalMock = chai.spy();
+        element.click();
 
+        expect(modalMock).to.have.been.called.once;
       });
 
-      it('should display the list of peers', function() {
+      it('should create a modal on click with the good the scope', function() {
+        element.click();
 
+        expect(modalScope.showCompare).to.be.false;
+        expect(modalScope.sharedValues).to.be.an('object');
+        expect(modalScope.peers).to.be.an('array');
+        expect(modalScope.left).to.be.an('object');
+        expect(modalScope.right).to.be.an('object');
+        expect(modalScope.toggleCompareQuillYjs).to.be.a('function');
+        expect(modalScope.toggleCompareOwnAndRemote).to.be.a('function');
       });
 
-      describe('comparator', function() {
-        it('should be able to compare local yjs and local quill', function() {
-
+      describe('toggleCompareQuillYjs', function() {
+        beforeEach(function() {
+          element.click();
         });
 
-        it('should be able to compare local yjs and remote quill', function() {
+        it('should toggle showCompare', function() {
+          modalScope.toggleCompareQuillYjs();
+          expect(modalScope.showCompare).to.be.true;
 
+          modalScope.toggleCompareQuillYjs();
+          expect(modalScope.showCompare).to.be.false;
         });
 
-        it('should be able to compare local yjs and remote yjs', function() {
+        it('should call collabDebug.fill', function() {
+          collabDebug.fill = chai.spy();
+          contentGetters.yjs = 'foo';
+          contentGetters.quill = 'bar';
 
+          modalScope.toggleCompareQuillYjs();
+
+          expect(collabDebug.fill).to.have.been.called.with(contentGetters.yjs, 'Yjs', modalScope.left);
+          expect(collabDebug.fill).to.have.been.called.with(contentGetters.quill, 'Quill', modalScope.right);
         });
-      })
+      });
+
+      describe('toggleCompareOwnAndRemote', function() {
+        var peerId, source;
+        beforeEach(function() {
+          element.click();
+          peerId = 'abcdefg';
+          source = 'quill'
+        });
+
+        it('should toggle showCompare', function() {
+          modalScope.toggleCompareOwnAndRemote(peerId, source);
+          expect(modalScope.showCompare).to.be.true;
+
+          modalScope.toggleCompareOwnAndRemote(peerId, source);
+          expect(modalScope.showCompare).to.be.false;
+        });
+
+        it('should call collabDebug.fill', function() {
+          collabDebug.fill = chai.spy();
+          contentGetters.yjs = 'foo';
+          contentGetters.getRemote = function() {
+            return 'bar';
+          };
+
+          modalScope.toggleCompareQuillYjs(peerId, source);
+
+          expect(collabDebug.fill).to.have.been.called.with(contentGetters.yjs, 'Yjs', modalScope.left);
+        });
+
+        it('should fail if peerId or source is missing, or unknown source', function() {
+          var fail = function() {
+            modalScope.toggleCompareOwnAndRemote();
+          };
+          expect(fail).to.throw(/missing first argument/);
+
+          fail = function() {
+            modalScope.toggleCompareOwnAndRemote(peerId);
+          };
+          expect(fail).to.throw(/missing second argument/);
+
+          fail = function() {
+            modalScope.toggleCompareOwnAndRemote(peerId, 'I am a random source');
+          };
+          expect(fail).to.throw(/unknown source/);
+        });
+      });
     });
 
   });

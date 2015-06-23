@@ -20,6 +20,7 @@ module.exports = function(config) {
       'frontend/components/quill/dist/quill.js',
       'frontend/components/ng-device-detector/ng-device-detector.js',
       'frontend/components/re-tree/re-tree.js',
+      'frontend/components/angular-strap/dist/angular-strap.min.js',
       'frontend/views/*.jade'
     ],
 
