@@ -10,8 +10,8 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
     };
   }]).factory('contentGetters', ['yjsService', '$q', 'editorFactory', 'contentsToHtml', 'easyRTCService', 'DEBUG_MESSAGE',
     function(yjsService, $q, editorFactory, contentsToHtml, easyRTCService, DEBUG_MESSAGE) {
-      var getYjsContents = function () {
-        return $q(function (resolve, reject) {
+      var getYjsContents = function() {
+        return $q(function(resolve, reject) {
           var html, content;
           if (!yjsService().y) {
             throw new Error('This should not happen.');
@@ -25,9 +25,9 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
         });
       };
 
-      var getQuillContents = function () {
+      var getQuillContents = function() {
 
-        return $q(function (resolve, reject) {
+        return $q(function(resolve, reject) {
           var html;
           if (editorFactory.getEditor() && editorFactory.getEditor().getHTML) {
             html = editorFactory.getEditor().getHTML();
@@ -41,8 +41,8 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
 
       function getRemote(peerId, source) {
 
-        return function () {
-          return $q(function (resolve, reject) {
+        return function() {
+          return $q(function(resolve, reject) {
             function listener(sendersEasyrtcid, msgType, msgData) {
               var data = JSON.parse(msgData);
               if (data.error) {

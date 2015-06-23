@@ -224,9 +224,9 @@ angular.module('collaborative-editor')
           var source = JSON.parse(msgData);
 
           function reply(promise) {
-            promise().then(function (html) {
+            promise().then(function(html) {
               easyRTCService.sendData(sendersEasyrtcid, DEBUG_MESSAGE.reply, {content: html});
-            }, function (error) {
+            }, function(error) {
               easyRTCService.sendData(sendersEasyrtcid, DEBUG_MESSAGE.reply, {error: error});
             });
           }
