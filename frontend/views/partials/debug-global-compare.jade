@@ -1,0 +1,7 @@
+button(ng-hide='showCompare' ng-click='compare()') Compare local yjs with remote {{ compareName }}
+div(ng-show='showCompare')
+  button(ng-click='showCompare=false') Hide compare local yjs with remote {{ compareName }}
+  div(ng-repeat='peer in peers')
+    | {{ peer.infos.displayName }}&nbsp;
+    i.fa.fa-check(ng-show="peer.hasSameContent===true")
+    i.fa.fa-times(ng-show="peer.hasSameContent===false")

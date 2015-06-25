@@ -7,18 +7,24 @@
         h4 Dev mode
       .modal-body
         h1 Remote informations
+        h2 Peer-wise
         div(ng-repeat='peer in peers')
           b {{ peer.infos.displayName }}
-          |  ({{ peer.id }})
-          div Is synced
-            | &nbsp;
-            i.fa.fa-check(ng-show="peer.is_synced")
-            i.fa.fa-times(ng-hide="peer.is_synced")
-            | &nbsp;
+          |  ({{ peer.id }}) &nbsp
+          span(ng-show="peer.is_synced") is synced&nbsp;
+            i.fa.fa-check
+          span(ng-hide="peer.is_synced") is not synced&nbsp;
+            i.fa.fa-times
+          br
           | Compare local and remote &nbsp;
           button(ng-click='toggleCompareOwnAndRemote(peer.id, "Quill")') Quill
           | &nbsp;
           button(ng-click='toggleCompareOwnAndRemote(peer.id, "Yjs")') Yjs
+        h2 Global
+        b Check that everybody has the same version
+        div(compare-local-and-all-remote do-compare-quill='true')
+        div(compare-local-and-all-remote do-compare-yjs='true')
+        div(compare-local-and-all-remote do-compare-yjs='true' do-compare-quill='true')
         h1 Local informations
         div
           b Values:

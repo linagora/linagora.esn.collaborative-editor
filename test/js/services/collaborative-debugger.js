@@ -480,5 +480,25 @@ describe('The collaborative debugger', function() {
       });
     });
 
+    describe('compareLocalAndAllRemoteYjs', function() {
+
+      beforeEach(angular.mock.inject(function(_$rootScope_, _$modal_, $compile, _collabDebugger_) {
+        $rootScope = _$rootScope_;
+        scope = $rootScope.$new();
+        $modal = _$modal_;
+        collabDebug = _collabDebugger_;
+
+        element = angular.element('<div compare-local-and-all-remote-yjs></div>');
+
+        $compile(element)(scope);
+        scope.$digest();
+
+        localScope = element.scope();
+      }));
+
+      it('should expose a compare function', function() {
+        expect(localScope.compare).to.be.a('function');
+      });
+    });
   });
 });

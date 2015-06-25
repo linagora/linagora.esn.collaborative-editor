@@ -44,7 +44,7 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
         return function() {
           return $q(function(resolve, reject) {
             function listener(sendersEasyrtcid, msgType, msgData) {
-              var data = JSON.parse(msgData);
+              var data = msgData;
               if (data.error) {
                 reject(data.error);
               } else {
@@ -52,7 +52,7 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
               }
             }
 
-            easyRTCService.setPeerListener(listener, DEBUG_MESSAGE.reply, peerId);
+            easyRTCService.setPeerListener(listener, DEBUG_MESSAGE.reply + source, peerId);
             easyRTCService.sendData(peerId, DEBUG_MESSAGE.ask, source);
           });
         };
@@ -65,8 +65,8 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
       };
     }
   ])
-  .factory('collabDebugger', ['yjsService', 'currentConferenceState',
-    function(yjsService, currentConferenceState) {
+  .factory('collabDebugger', ['yjsService', 'currentConferenceState', 'contentGetters', '$q',
+    function(yjsService, currentConferenceState, contentGetters, $q) {
       function yjsPeers() {
         var id, peers = [],
           connections = yjsService().connector.connections;
@@ -108,17 +108,66 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
         });
       }
 
+      function compareGenerator(getRemoteDataOf) {
+        return function(initialMatch, initialMisMatch) {
+          var match = initialMatch || [],
+            mismatch = initialMatch || [],
+            getLocalData = contentGetters.yjs(),
+            peers = yjsPeers();
+
+          return $q(function(resolve, reject) {
+            if (peers.length === 0) {
+              resolve();
+            }
+            peers.forEach(function(peer) {
+              getRemoteDataOf(peer.id)().then(function(data) {
+
+                getLocalData.then(function(localData) {
+
+                  if (data.content === localData.content) {
+                    if (!(peer in match)) {
+                      match.push(peer);
+                    }
+                  } else {
+                    if (!(peer in mismatch)) {
+                      mismatch.push(peer);
+                    }
+                  }
+
+                  if (match.length + mismatch.length === peers.length) {
+                    if (mismatch.length === 0) {
+                      resolve({match: match, mismatch: mismatch});
+                    } else {
+                      reject({match: match, mismatch: mismatch});
+                    }
+                  }
+                });
+              });
+            });
+          });
+        };
+      }
+
+      var compareEveryYjs = compareGenerator(function(peer) {
+            return contentGetters.getRemote(peer, 'Yjs');
+          }),
+          compareEveryQuill = compareGenerator(function(peer) {
+            return contentGetters.getRemote(peer, 'Quill');
+          });
+
       var service = {
         peers: yjsPeers,
         yjs: yjs,
         fill: fill,
-        peerName: peerName
+        peerName: peerName,
+        compareEveryYjs: compareEveryYjs,
+        compareEveryQuill: compareEveryQuill
       };
 
       return service;
     }
   ]).directive('collabDebugLauncher', ['collabDebugger', '$modal', 'contentGetters',
-    function(collabDebug, $modal, contentGetters) {
+    function(collabDebugger, $modal, contentGetters) {
     return {
       restrict: 'E',
       template: '',
@@ -141,8 +190,8 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
         newScope.toggleCompareQuillYjs = function() {
           newScope.showCompare = !newScope.showCompare;
           if (newScope.showCompare) {
-            collabDebug.fill(contentGetters.yjs, 'Yjs', newScope.left);
-            collabDebug.fill(contentGetters.quill, 'Quill', newScope.right);
+            collabDebugger.fill(contentGetters.yjs, 'Yjs', newScope.left);
+            collabDebugger.fill(contentGetters.quill, 'Quill', newScope.right);
           }
         };
 
@@ -158,12 +207,11 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
               throw new Error('unknown source');
             }
           }
-
           newScope.showCompare = !newScope.showCompare;
 
           if (newScope.showCompare) {
             localTitle = 'Yjs (local)';
-            remoteTitle = source + ' (remote: ' + collabDebug.peerName(peerId) + ')';
+            remoteTitle = source + ' (remote: ' + collabDebugger.peerName(peerId) + ')';
 
             newScope.right.content = 'Waiting for remote peer';
             newScope.right.class = 'waiting';
@@ -176,17 +224,64 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
               throw new Error('Unexpected source: ' + source);
             }
 
-            collabDebug.fill(contentGetters.yjs, localTitle, newScope.left);
-            collabDebug.fill(promise, remoteTitle, newScope.right);
+            collabDebugger.fill(contentGetters.yjs, localTitle, newScope.left);
+            collabDebugger.fill(promise, remoteTitle, newScope.right);
           }
         };
         scope.onClick = function() {
-          newScope.peers = collabDebug.peers();
-          newScope.sharedValues = collabDebug.yjs.val();
+          newScope.peers = collabDebugger.peers();
+          newScope.sharedValues = collabDebugger.yjs.val();
 
           $modal({
             scope: newScope,
             template: '/editor/views/devmode-dialog.html'
+          });
+        };
+      }
+    };
+  }]).directive('compareLocalAndAllRemote', ['collabDebugger', 'contentGetters', function(collabDebugger, contentGetters) {
+    return {
+      restrict: 'A',
+      templateUrl: '/editor/views/partials/debug-global-compare.html',
+      scope: {
+        doCompareYjs: '=',
+        doCompareQuill: '='
+      },
+      link: function(scope, element) {
+        var peers = collabDebugger.peers();
+        var tmpCompareName = [];
+
+        scope.showCompare = false;
+        scope.compareName = '';
+
+        if (scope.doCompareYjs) {
+          tmpCompareName.push('yjs');
+        }
+        if (scope.doCompareQuill) {
+          tmpCompareName.push('Quill');
+        }
+        scope.compareName = tmpCompareName.join(' and ');
+
+        scope.compare = function() {
+          var getLocalYjs = contentGetters.yjs();
+          var getLocalQuill = contentGetters.quill();
+          scope.showCompare = true;
+          scope.peers = peers;
+          peers.forEach(function(peer) {
+            var getRemoteYjs = contentGetters.getRemote(peer.id, 'yjs')();
+            var getRemoteQuill = contentGetters.getRemote(peer.id, 'quill')();
+            getRemoteYjs.then(function(remoteYjs) {
+              getRemoteQuill.then(function(remoteQuill) {
+                getLocalYjs.then(function(localYjs) {
+                  getLocalQuill.then(function(localQuill) {
+                    var yjss = scope.doCompareYjs ? (remoteYjs === localYjs) : true;
+                    var quills = scope.doCompareQuill ? (remoteQuill === localQuill) : true;
+                    var locals = localQuill === localYjs;
+                    peer.hasSameContent = yjss && quills && locals;
+                  });
+                });
+              });
+            });
           });
         };
       }

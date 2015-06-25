@@ -221,22 +221,23 @@ angular.module('collaborative-editor')
 
       function replyOnAskWholeContent() {
         easyRTCService.setPeerListener(function(sendersEasyrtcid, msgType, msgData) {
-          var source = JSON.parse(msgData);
+          var source = msgData;
 
-          function reply(promise) {
-            promise().then(function(html) {
-              easyRTCService.sendData(sendersEasyrtcid, DEBUG_MESSAGE.reply, {content: html});
-            }, function(error) {
-              easyRTCService.sendData(sendersEasyrtcid, DEBUG_MESSAGE.reply, {error: error});
-            });
+          var getContent;
+
+          if (msgData === 'quill') {
+            getContent = contentGetters.quill();
+          } else if (msgData === 'yjs') {
+            getContent = contentGetters.yjs();
+          } else {
+            easyRTCService.sendData(sendersEasyrtcid, DEBUG_MESSAGE.reply + source, {error: 'Unknown data source'});
           }
 
-          if (source === 'yjs') {
-            reply(contentGetters.yjs);
-          } else if (source === 'quill') {
-            reply(contentGetters.quill);
-          }
-
+          getContent.then(function(html) {
+            easyRTCService.sendData(sendersEasyrtcid, DEBUG_MESSAGE.reply + source, {content: html});
+          }, function(error) {
+            easyRTCService.sendData(sendersEasyrtcid, DEBUG_MESSAGE.reply + source, {error: error});
+          });
         }, DEBUG_MESSAGE.ask);
       }
 
