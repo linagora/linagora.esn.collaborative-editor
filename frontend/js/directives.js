@@ -96,7 +96,7 @@ angular.module('collaborative-editor')
       restrict: 'E',
       replace: 'true',
       link: link,
-      templateUrl: 'editor/views/editor.html'
+      templateUrl: '/editor/views/editor.html'
     };
   }])
   .directive('editorToggleElement', [
@@ -105,7 +105,7 @@ angular.module('collaborative-editor')
         restrict: 'E',
         require: 'liveConference',
         replace: 'true',
-        templateUrl: 'editor/views/button.html'
+        templateUrl: '/editor/views/button.html'
       };
     }
   ])
