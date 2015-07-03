@@ -28,6 +28,7 @@ describe('The collaborative debugger', function() {
 
   beforeEach(function() {
     angular.mock.module('collaborativeDebugger');
+    angular.mock.module('jadeTemplates');
   });
 
   beforeEach(function() {
@@ -199,19 +200,20 @@ describe('The collaborative debugger', function() {
 
           expect(contentGetters.getRemote(peer, source)).to.be.a('function');
           expect(contentGetters.getRemote(peer, source)()).to.have.property('then');
-        })
+        });
 
         it('should resolve on successful DEBUG_MESSAGE.reply ', function(done) {
+          var resolve, reject;
           easyRTCService.setPeerListener = chai.spy(function(listener) {
-            listener(null, null, JSON.stringify({content: 'foo'}));
+            listener(null, null, {content: 'foo'});
           });
-          var resolve = function() {
-                expect(easyRTCService.setPeerListener).to.have.been.called.once.with(DEBUG_MESSAGE.reply, peer);
-                done();
-              },
-              reject = function() {
-                done('Should not have been called');
-              };
+          resolve = function() {
+            expect(easyRTCService.setPeerListener).to.have.been.called.once.with(DEBUG_MESSAGE.reply + source, peer);
+            done();
+          }
+          reject = function() {
+            done('Should not have been called');
+          };
           var promise = contentGetters.getRemote(peer, source);
           promise().then(resolve, reject);
 
@@ -219,16 +221,17 @@ describe('The collaborative debugger', function() {
         });
 
         it('should reject on non-successful DEBUG_MESSAGE.reply ', function(done) {
+          var reject, resolve;
           easyRTCService.setPeerListener = chai.spy(function(listener) {
-            listener(null, null, JSON.stringify({error: 'foo'}));
+            listener(null, null, {error: 'foo'});
           });
-          var reject = function() {
-              expect(easyRTCService.setPeerListener).to.have.been.called.once.with(DEBUG_MESSAGE.reply, peer);
-              done();
-            },
-            resolve = function() {
-              done('Should not have been called');
-            };
+          reject = function() {
+            expect(easyRTCService.setPeerListener).to.have.been.called.once.with(DEBUG_MESSAGE.reply + source, peer);
+            done();
+          };
+          resolve = function() {
+            done('Should not have been called');
+          };
           var promise = contentGetters.getRemote(peer, source);
           promise().then(resolve, reject);
 
@@ -438,7 +441,7 @@ describe('The collaborative debugger', function() {
         beforeEach(function() {
           element.click();
           peerId = 'abcdefg';
-          source = 'quill'
+          source = 'quill';
         });
 
         it('should toggle showCompare', function() {
@@ -480,24 +483,79 @@ describe('The collaborative debugger', function() {
       });
     });
 
-    describe('compareLocalAndAllRemoteYjs', function() {
-
+    describe('compareLocalAndAllRemote', function() {
+      var peerList;
       beforeEach(angular.mock.inject(function(_$rootScope_, _$modal_, $compile, _collabDebugger_) {
         $rootScope = _$rootScope_;
         scope = $rootScope.$new();
         $modal = _$modal_;
-        collabDebug = _collabDebugger_;
+        collabDebugger = _collabDebugger_;
 
-        element = angular.element('<div compare-local-and-all-remote-yjs></div>');
+        peerList = [
+          { id: 'foo' },
+          { id: 'bar' }
+        ];
+        collabDebugger.peers = function() {
+          return peerList;
+        };
+
+        element = angular.element('<div compare-local-and-all-remote do-compare-yjs="true" do-compare-quill="false"></div>');
 
         $compile(element)(scope);
         scope.$digest();
 
-        localScope = element.scope();
+        localScope = element.isolateScope();
       }));
 
-      it('should expose a compare function', function() {
+      it('should expose functions and attributes', function() {
         expect(localScope.compare).to.be.a('function');
+        expect(localScope.showCompare).to.be.false;
+        expect(localScope.compareName).to.equal("yjs");
+        expect(localScope.doCompareYjs).to.be.true;
+        expect(localScope.doCompareQuill).to.be.false;
+      });
+
+      describe('the compare function', function() {
+        var fakePromise = function(contentToReturn) {
+          return {
+            then: function(resolve) {
+              resolve(contentToReturn);
+            }
+          };
+        };
+        beforeEach(function() {
+
+          contentGetters.yjs = chai.spy();
+          contentGetters.quill = chai.spy(fakePromise('abcd'));
+          contentGetters.yjs = chai.spy(fakePromise('abcd'));
+          contentGetters.getRemote = chai.spy(function() {
+            return function() {
+              return fakePromise('abcd');
+            };
+          });
+        });
+
+        it('should get the local content', function() {
+          contentGetters.quill = chai.spy(fakePromise('abcd'));
+          contentGetters.yjs = chai.spy(fakePromise('abcd'));
+          contentGetters.getRemote = chai.spy(function() {
+            return function() {
+              return fakePromise('abcd');
+            };
+          });
+          localScope.doCompareYjs = localScope.doCompareQuill = true;
+
+          localScope.compare();
+
+          peerList.forEach(function(peer) {
+            expect(contentGetters.getRemote).to.have.been.called.with(peer.id, 'yjs');
+            expect(contentGetters.getRemote).to.have.been.called.with(peer.id, 'quill');
+          });
+          expect(contentGetters.yjs).to.have.been.called.exactly(peerList.length);
+
+          expect(contentGetters.quill).to.have.been.called.exactly(peerList.length);
+        });
+
       });
     });
   });
