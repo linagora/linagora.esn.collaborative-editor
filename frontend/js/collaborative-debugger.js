@@ -239,7 +239,7 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
         };
       }
     };
-  }]).directive('compareLocalAndAllRemote', ['collabDebugger', 'contentGetters', function(collabDebugger, contentGetters) {
+  }]).directive('compareLocalAndAllRemote', ['collabDebugger', 'contentGetters', '$q', function(collabDebugger, contentGetters, $q) {
     return {
       restrict: 'A',
       templateUrl: '/editor/views/partials/debug-global-compare.html',
@@ -263,24 +263,22 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
         scope.compareName = tmpCompareName.join(' and ');
 
         scope.compare = function() {
-          var getLocalYjs = contentGetters.yjs();
-          var getLocalQuill = contentGetters.quill();
           scope.showCompare = true;
           scope.peers = peers;
           peers.forEach(function(peer) {
-            var getRemoteYjs = contentGetters.getRemote(peer.id, 'yjs')();
-            var getRemoteQuill = contentGetters.getRemote(peer.id, 'quill')();
-            getRemoteYjs.then(function(remoteYjs) {
-              getRemoteQuill.then(function(remoteQuill) {
-                getLocalYjs.then(function(localYjs) {
-                  getLocalQuill.then(function(localQuill) {
-                    var yjss = scope.doCompareYjs ? (remoteYjs === localYjs) : true;
-                    var quills = scope.doCompareQuill ? (remoteQuill === localQuill) : true;
-                    var locals = localQuill === localYjs;
-                    peer.hasSameContent = yjss && quills && locals;
-                  });
-                });
-              });
+            var promises = [contentGetters.yjs(), contentGetters.quill()];
+            if (scope.doCompareYjs) {
+              promises.push(contentGetters.getRemote(peer.id, 'yjs')());
+            }
+            if (scope.doCompareQuill) {
+              promises.push(contentGetters.getRemote(peer.id, 'quill')());
+            }
+
+            $q.all(promises).then(function(results) {
+              // get all the promises and check they're equal
+              peer.hasSameContent = results.reduce(function(a, b) {
+                return (a === b) ? a : false;
+              }) === results[0];
             });
           });
         };
