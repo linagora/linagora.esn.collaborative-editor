@@ -46,17 +46,24 @@ angular.module('collaborative-editor')
         properties.maxPaneWidth = 100;
       } else {
         properties.minPaneWidth = 0;
-        properties.maxPaneWidth = 100;
+        properties.maxPaneWidth = 70;
       }
 
       function emitResizeWidth(event, args) {
-        var paneWidth = 100 * args.width / $($window).width();
-        paneWidth = Math.max(properties.minPaneWidth, Math.min(properties.maxPaneWidth, paneWidth));
-        $rootScope.$emit('paneSize', {width: paneWidth});
-        return paneWidth;
+        var windowWidth = angular.element($window).width(),
+            paneWidthInPercent = 100 * args.width / windowWidth,
+            normalizedPaneWidthInPercent = Math.max(properties.minPaneWidth, Math.min(properties.maxPaneWidth, paneWidthInPercent));
+
+        $rootScope.$broadcast('paneSize', {
+          width: normalizedPaneWidthInPercent,
+          rawWidthInPercent: paneWidthInPercent,
+          widthInPixels: windowWidth * normalizedPaneWidthInPercent / 100,
+          normalized: normalizedPaneWidthInPercent !== paneWidthInPercent
+        });
+
+        return normalizedPaneWidthInPercent;
       }
 
-      $scope.$on('angular-resizable.resizing', emitResizeWidth);
       $scope.$on('angular-resizable.resizeEnd', function() {
         properties.paneSize.width = emitResizeWidth.apply(this, arguments);
       });
@@ -66,6 +73,7 @@ angular.module('collaborative-editor')
       function limitWidth(width) {
         return Math.max(properties.minPaneWidth, Math.min(properties.maxPaneWidth, width));
       }
+
       scope.$on('editor:visible', function(evt, data) {
         var width = limitWidth(data.paneSize.width) + '%';
         element.css('width', width);
@@ -74,6 +82,11 @@ angular.module('collaborative-editor')
       scope.$on('editor:hidden', function(evt, data) {
         element.css('width', '0');
         element.removeClass('visible');
+      });
+      scope.$on('paneSize', function(evt, data) {
+        if (data.normalized) {
+          element.css('width', data.rawWidthInPercent >= 90 ? '100%' : data.widthInPixels);
+        }
       });
     }
 

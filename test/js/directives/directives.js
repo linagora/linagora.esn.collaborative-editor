@@ -151,8 +151,7 @@ describe('collaborative editor directives', function() {
   });
   describe('liveConferenceEditor', function() {
     beforeEach(function() {
-      element = angular.element('<live-conference-editor></live-conference-editor>');
-      $compile(element)(scope);
+      element = $compile('<live-conference-editor></live-conference-editor>')(scope);
       scope.$digest();
     });
 
@@ -162,20 +161,10 @@ describe('collaborative editor directives', function() {
       expect(localScope.colors).to.exist;
     });
 
-    it.skip('should pass angular-resizable.resizing events to paneSize events', function(done) {
-
-      $rootScope.$on('paneSize', function() { done(); });
-      $rootScope.$emit('angular-resizable.resizing', {width: 0});
-      $rootScope.$digest();
-
-    });
-
-    it.skip('should pass angular-resizable.resizeEnd events to paneSize events', function(done) {
-
-      $rootScope.$on('paneSize', function() { done(); });
-      $rootScope.$emit('angular-resizable.resizeEnd', 'foo');
-      $rootScope.$digest();
-
+    it('should pass angular-resizable.resizeEnd events to paneSize events', function(done) {
+      scope.$on('paneSize', function() { done(); });
+      scope.$emit('angular-resizable.resizeEnd', { width: 1000 });
+      scope.$digest();
     });
   });
 
