@@ -64,7 +64,6 @@ angular.module('collaborative-editor')
         return normalizedPaneWidthInPercent;
       }
 
-      $scope.$on('angular-resizable.resizing', emitResizeWidth);
       $scope.$on('angular-resizable.resizeEnd', function() {
         properties.paneSize.width = emitResizeWidth.apply(this, arguments);
       });

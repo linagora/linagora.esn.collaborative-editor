@@ -184,6 +184,14 @@ describe('collaborative editor directives', function() {
       scope.$emit('angular-resizable.resizeEnd', { width: 1000 });
       scope.$digest();
     });
+
+    it('should not pass angular-resizable.resizing events to paneSize events', function(done) {
+      scope.$on('paneSize', function() { done('This test should not emit paneSize events...'); });
+      scope.$emit('angular-resizable.resizing', { width: 1000 });
+      scope.$digest();
+
+      done();
+    });
   });
 
   describe('editorToggleElement', function() {
