@@ -5,8 +5,9 @@
 var expect = chai.expect;
 
 describe('Collaborative editor services', function() {
-  var scope, $rootScope, $window, element, $compile;
+  var scope, $rootScope, $window, $compile;
   var eventCallbackService = {}, onCallback = {}, quillOnCallback, quillOnEvent;
+  var previousQuill;
   var i18nService = {
     __: function(key) {
       return {
@@ -57,39 +58,42 @@ describe('Collaborative editor services', function() {
           };
         };
       });
-      $provide.provider('currentConferenceState', function () {
-        this.$get = function () {
-          return function() {}
-        };
+      $provide.value('currentConferenceState', function (){
+        return function() {};
       });
 
-      $provide.provider('attendeeColorsService', function () {
-        this.$get = function () {
-          return true;
-        };
+      $provide.value('attendeeColorsService', function () {
+        return true;
       });
 
       $provide.value('eventCallbackService', eventCallbackService);
       $provide.value('i18nService', i18nService);
-
+      $provide.value('easyRTCService', {
+        setPeerListener: function() {}
+      });
+      $provide.value('contentGetters', {});
+      function Quill() {
+        return true;
+      };
+      Quill.events = {
+        TEXT_CHANGE: 'text-change'
+      };
+      Quill.prototype.on = chai.spy(function(event, cb) {
+        quillOnEvent = event;
+        quillOnCallback = cb;
+      });
+      $provide.value('$window', {
+        Quill: Quill
+      });
       eventCallbackService.on = chai.spy(function(event, cb) { onCallback[event] = cb; });
       eventCallbackService.off = chai.spy(function() {});
     });
   });
 
-  beforeEach(inject(function (_$rootScope_, _$window_, _$compile_) {
+  beforeEach(inject(function (_$rootScope_, _$compile_) {
     $rootScope = _$rootScope_;
-    $window = _$window_;
     $compile = _$compile_;
     scope = $rootScope.$new();
-
-    $window.Quill = function() {
-      return true;
-    };
-    $window.Quill.events = {
-      TEXT_CHANGE: 'text-change'
-    };
-    $window.Quill.prototype.on = chai.spy(function(event, cb) { quillOnEvent = event; quillOnCallback = cb; });
   }));
 
   describe('saverFactory', function() {

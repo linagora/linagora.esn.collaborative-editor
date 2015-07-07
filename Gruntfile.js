@@ -36,6 +36,20 @@ module.exports = function(grunt) {
         src: []
       }
     },
+    html2js: {
+      options: {
+        module: 'op.collaborative-editor-templates',
+        singleModule: true,
+        useStrict: true,
+        jade: {
+          doctype: 'html'
+        }
+      },
+      main: {
+        src: ['frontend/views/**/*.jade'],
+        dest: 'src/js/templates.js'
+      }
+    },
     gjslint: {
       options: {
         flags: [
@@ -121,12 +135,14 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-gjslint');
   grunt.loadNpmTasks('grunt-lint-pattern');
   grunt.loadNpmTasks('grunt-run-grunt');
+  grunt.loadNpmTasks('grunt-html2js');
 
   grunt.loadTasks('tasks');
 
   grunt.registerTask('test-frontend', ['run_grunt:frontend']);
   grunt.registerTask('test', ['linters', 'run_grunt:frontend']);
   grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'gjslint:all', 'lint_pattern:all']);
+  grunt.registerTask('templates', ['html2js']);
 
   /**
    * Usage:
@@ -135,5 +151,6 @@ module.exports = function(grunt) {
    */
   grunt.registerTask('linters-dev', 'Check changed files for lint', ['prepare-quick-lint', 'jshint:quick', 'gjslint:quick', 'lint_pattern:quick']);
 
-  grunt.registerTask('default', ['test']);
+  grunt.registerTask('default', ['templates', 'linters', 'test-frontend']);
+  grunt.registerTask('compile', ['templates']);
 };

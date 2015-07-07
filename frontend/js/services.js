@@ -95,8 +95,10 @@ angular.module('collaborative-editor')
     }
   ])
   .factory('collaborativeEditorDriver', ['properties', '$rootScope', 'yjsService',
-    'editorFactory', 'bindEditorService', '$log', '$window', 'eventCallbackService', 'saverFactory', 'i18nService',
-    function(properties, $rootScope, yjsService, editorFactory, bindEditorService, $log, $window, eventCallbackService, saverFactory, i18nService) {
+    'editorFactory', 'bindEditorService', '$log', '$window', 'eventCallbackService',
+    'saverFactory', 'i18nService', 'easyRTCService', 'DEBUG_MESSAGE', 'contentGetters',
+    function(properties, $rootScope, yjsService, editorFactory, bindEditorService, $log,
+             $window, eventCallbackService, saverFactory, i18nService, easyRTCService, DEBUG_MESSAGE, contentGetters) {
       function showEditor() {
         if (!properties.quill) {
           wireEditor();
@@ -217,6 +219,29 @@ angular.module('collaborative-editor')
         });
       }
 
+      function replyOnAskWholeContent() {
+        easyRTCService.setPeerListener(function(sendersEasyrtcid, msgType, msgData) {
+          var source = msgData;
+
+          var getContent;
+
+          if (msgData === 'quill') {
+            getContent = contentGetters.quill();
+          } else if (msgData === 'yjs') {
+            getContent = contentGetters.yjs();
+          } else {
+            easyRTCService.sendData(sendersEasyrtcid, DEBUG_MESSAGE.reply + source, {error: 'Unknown data source'});
+          }
+
+          getContent.then(function(html) {
+            easyRTCService.sendData(sendersEasyrtcid, DEBUG_MESSAGE.reply + source, {content: html});
+          }, function(error) {
+            easyRTCService.sendData(sendersEasyrtcid, DEBUG_MESSAGE.reply + source, {error: error});
+          });
+        }, DEBUG_MESSAGE.ask);
+      }
+
+      replyOnAskWholeContent();
       enableNotification();
       registerCallbacksOnConferenceLeft();
       registerCallbacksOnBeforeUnload();

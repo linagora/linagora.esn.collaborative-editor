@@ -1,0 +1,44 @@
+.modal(tabindex='-1', role='dialog')
+  .modal-dialog.modal-lg
+    .modal-content.text-center.modal-hublin
+      .modal-header
+        button.close(type='button', ng-click='$hide()', aria-label='Close')
+          span(aria-hidden='true') &times;
+        h4 Dev mode
+      .modal-body
+        h1 Remote informations
+        h2 Peer-wise
+        div(ng-repeat='peer in peers')
+          b {{ peer.infos.displayName }}
+          |  ({{ peer.id }}) &nbsp
+          span(ng-show="peer.is_synced") is synced&nbsp;
+            i.fa.fa-check
+          span(ng-hide="peer.is_synced") is not synced&nbsp;
+            i.fa.fa-times
+          br
+          | Compare local and remote &nbsp;
+          button(ng-click='toggleCompareOwnAndRemote(peer.id, "Quill")') Quill
+          | &nbsp;
+          button(ng-click='toggleCompareOwnAndRemote(peer.id, "Yjs")') Yjs
+        h2 Global
+        b Check that everybody has the same version
+        div(compare-local-and-all-remote do-compare-quill='true')
+        div(compare-local-and-all-remote do-compare-yjs='true')
+        div(compare-local-and-all-remote do-compare-yjs='true' do-compare-quill='true')
+        h1 Local informations
+        div
+          b Values:
+          | &nbsp;
+          span(ng-repeat='(key, value) in sharedValues') {{ key }},
+        div
+          b Compare quill and yjs:
+          | &nbsp;
+          button(ng-click='toggleCompareQuillYjs()') Compare
+        h1 Comparator
+        .side-by-side(ng-show='showCompare')
+          .left(ng-class='left.class.error') {{ left.title }}
+            .container(ng-bind-html='left.content')
+          .right(ng-class='right.class.error') {{ right.title }}
+            .container(ng-bind-html='right.content')
+          #quill-hidden-container.hide
+      .modal-footer

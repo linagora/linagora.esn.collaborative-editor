@@ -19,7 +19,7 @@ var AwesomeCollaborativeEditorModule = new AwesomeModule('linagora.esn.collabora
       var myJsFiles = ['app.js', 'services.js', 'directives.js', 'constants.js',
         'markdown-export.js', 'pdf-export.js', 'plaintext-export.js'];
       webserver.injectAngularModules('editor', myJsFiles, 'collaborative-editor', ['live-conference']);
-
+      webserver.injectAngularModules('editor', ['collaborative-debugger.js'], 'collaborativeDebugger', ['live-conference']);
       webserver.injectCSS('editor', ['editor.css'], ['live-conference']);
 
       // Inject extra dependencies

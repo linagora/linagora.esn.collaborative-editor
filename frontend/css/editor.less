@@ -176,3 +176,42 @@
 .exit-page-question {
   color: #3331ea;
 }
+
+
+collab-debug-launcher {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  z-index: 5;
+
+  &:hover {
+    background-color: rgba(255,255,255,0.3);
+  }
+}
+
+.side-by-side {
+  .left, .right {
+    width: 50%;
+    display: inline-block;
+
+    & .container {
+      text-align: left;
+      border: 1px solid black;
+      border-radius: 4px;
+      width: 100%;
+    }
+  }
+
+  .left {
+    padding-right: 5px;
+  }
+  .right {
+    padding-left: 5px;
+  }
+}
+.hide {
+  display: none;
+}

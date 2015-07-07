@@ -20,7 +20,8 @@ module.exports = function(config) {
       'frontend/components/quill/dist/quill.js',
       'frontend/components/ng-device-detector/ng-device-detector.js',
       'frontend/components/re-tree/re-tree.js',
-      'frontend/views/*.jade'
+      'frontend/components/angular-strap/dist/angular-strap.min.js',
+      'frontend/views/**/*.jade'
     ],
 
     frameworks: ['mocha'],
@@ -31,12 +32,12 @@ module.exports = function(config) {
     reporters: ['coverage', 'spec'],
     preprocessors: {
       'frontend/js/**/*.js': ['coverage'],
-      'frontend/views/*.jade': ['ng-jade2module']
+      'frontend/views/**/*.jade': ['ng-jade2module']
 
     },
     ngJade2ModulePreprocessor: {
       stripPrefix: 'frontend/',
-      prependPrefix: 'editor/',
+      prependPrefix: '/editor/',
 
       // setting this option will create only a single module that contains templates
       // from all the files, so you can load them all with module('templates')
