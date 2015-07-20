@@ -147,7 +147,6 @@ angular.module('collaborative-editor')
 
       function enableNotification() {
         var y = yjsService().y;
-
         y.observe(function(events) {
          events.filter(function(event) {
            return event.name === 'editor';

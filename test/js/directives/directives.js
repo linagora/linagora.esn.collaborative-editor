@@ -8,6 +8,8 @@ var assert = chai.assert;
 describe('collaborative editor directives', function() {
   var scope, $rootScope, $window, element, $compile, properties = {};
   var quillOnEvent, quillOnCallback, previousQuill;
+  var charactersObject, charactersCb, editorObject, yCb;
+
   var eventCallbackService = {
     on: function() {},
     off: function() {}
@@ -38,16 +40,41 @@ describe('collaborative editor directives', function() {
     module('jadeTemplates');
     module(function ($provide) {
       $provide.service('yjsService', function () {
+        var tmp = chai.spy(function(cb) {
+          charactersCb = cb;
+        });
+        charactersObject = {
+          observe: tmp
+        };
+
+        editorObject = {
+          _model: {
+            getContent: function() {
+              return charactersObject;
+            }
+          },
+          getText: function() {
+            return 'abc';
+          }
+        };
+
+        var messageListeners = [];
         return function() {
-          var messageListeners = [];
           return {
-            y: {},
+            y: {
+              val: function() {
+                return editorObject;
+              },
+              observe: function(cb) {
+                yCb = cb;
+              }
+            },
             connector: {
               whenSynced: function() {},
               addMessageListener: function(callback) {
                 messageListeners.push(callback);
               },
-              getMessageListener: function() {
+              getMessageListeners: function() {
                 return messageListeners;
               }
             }
