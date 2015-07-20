@@ -146,15 +146,17 @@ angular.module('collaborative-editor')
       }
 
       function enableNotification() {
-        var tmp = yjsService(),
-            connector = tmp.connector,
-            y = tmp.y;
+        var y = yjsService().y;
 
-        connector.addMessageListener(function(event) {
-          if (y.val('editor') && y.val('editor').getText().trim() !== '') {
-            properties.newNotification = true;
-            properties.documentSaved = false;
-          }
+        y.observe(function(events) {
+         events.filter(function(event) {
+           return event.name === 'editor';
+         }).forEach(function() {
+            y.val('editor')._model.getContent('characters').observe(function() {
+              properties.newNotification = true;
+              properties.documentSaved = false;
+           });
+         });
         });
       }
 
