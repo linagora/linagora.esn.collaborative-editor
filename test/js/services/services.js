@@ -7,7 +7,7 @@ var expect = chai.expect;
 describe('Collaborative editor services', function() {
   var scope, $rootScope, $window, $compile;
   var eventCallbackService = {}, onCallback = {}, quillOnCallback, quillOnEvent;
-  var charactersObject, charactersCb, editorObject, yCb;
+  var charactersCb, editorObject, yCb;
   var previousQuill;
   var i18nService = {
     __: function(key) {
@@ -35,17 +35,14 @@ describe('Collaborative editor services', function() {
     module('jadeTemplates');
     module(function ($provide) {
       $provide.service('yjsService', function () {
-        var tmp = chai.spy(function(cb) {
-          charactersCb = cb;
-        });
-        charactersObject = {
-          observe: tmp
-        };
-
         editorObject = {
           _model: {
             getContent: function() {
-              return charactersObject;
+              return {
+                observe: function(cb) {
+                  charactersCb = cb;
+                }
+              };;
             }
           },
           getText: function() {
