@@ -7,6 +7,7 @@ var expect = chai.expect;
 describe('Collaborative editor services', function() {
   var scope, $rootScope, $window, $compile;
   var eventCallbackService = {}, onCallback = {}, quillOnCallback, quillOnEvent;
+  var charactersCb, editorObject, yCb;
   var previousQuill;
   var i18nService = {
     __: function(key) {
@@ -34,16 +35,30 @@ describe('Collaborative editor services', function() {
     module('jadeTemplates');
     module(function ($provide) {
       $provide.service('yjsService', function () {
+        editorObject = {
+          _model: {
+            getContent: function() {
+              return {
+                observe: function(cb) {
+                  charactersCb = cb;
+                }
+              };;
+            }
+          },
+          getText: function() {
+            return 'abc';
+          }
+        };
+
         var messageListeners = [];
         return function() {
           return {
             y: {
               val: function() {
-                return {
-                  getText: function() {
-                    return 'abc';
-                  }
-                };
+                return editorObject;
+              },
+              observe: function(cb) {
+                yCb = cb;
               }
             },
             connector: {
@@ -286,17 +301,19 @@ describe('Collaborative editor services', function() {
     });
 
     it('should change properties on each message got', function() {
-      var connector = yjsService().connector;
-      var listener = connector.getMessageListeners()[0];
+      expect(properties.newNotification).not.to.be.true;
 
-      expect(listener).to.be.a('function');
-      listener();
+      yCb([{name: 'editor'}]);
+      charactersCb();
+
       expect(properties.newNotification).to.be.true;
     });
 
     it('should set documentSaved=false on each message got', function() {
       properties.documentSaved = true;
-      yjsService().connector.getMessageListeners()[0]();
+
+      yCb([{name: 'editor'}]);
+      charactersCb();
 
       expect(properties.documentSaved).to.be.false;
     });
