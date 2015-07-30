@@ -13,12 +13,12 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
       var getYjsContents = function() {
         return $q(function(resolve, reject) {
           var html, content;
-          if (!yjsService().y) {
+          if (!yjsService.y) {
             throw new Error('This should not happen.');
-          } else if (!yjsService().y.val('editor')) {
+          } else if (!yjsService.y.val('editor')) {
             reject('Editor object does no exist');
           } else {
-            content = {ops: yjsService().y.val('editor').getDelta()};
+            content = {ops: yjsService.y.val('editor').getDelta()};
             html = contentsToHtml(content);
             resolve(html);
           }
@@ -69,7 +69,7 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
     function(yjsService, currentConferenceState, contentGetters, $q) {
       function yjsPeers() {
         var id, peers = [],
-          connections = yjsService().connector.connections;
+          connections = yjsService.connector.connections;
         for (id in connections) {
           peers.push({
             id: id,
@@ -80,7 +80,7 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
         return peers;
       }
 
-      var yjs = yjsService().y;
+      var yjs = yjsService.y;
 
       function peerName(id) {
         return currentConferenceState.getAttendeeByEasyrtcid(id).displayName;

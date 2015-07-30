@@ -1,4 +1,5 @@
 'use strict';
+/*global chai*/
 
 var expect = chai.expect;
 describe('The collaborative debugger', function() {
@@ -37,11 +38,9 @@ describe('The collaborative debugger', function() {
         return function() {};
       };
       $provide.service('yjsService', function () {
-        return function() {
-          return {
-            y: yMock,
-            connector: connectorMock
-          };
+        return{
+          y: yMock,
+          connector: connectorMock
         };
       });
       $provide.value('saverFactory', {});
@@ -81,7 +80,7 @@ describe('The collaborative debugger', function() {
       collabDebugger = _collabDebugger_;
       $rootScope = _$rootScope_;
       DEBUG_MESSAGE = _DEBUG_MESSAGE_;
-      quill = new $window.Quill(angular.element("<div></div>").get(0));
+      quill = new $window.Quill(angular.element('<div></div>').get(0));
     });
   });
 
@@ -92,9 +91,9 @@ describe('The collaborative debugger', function() {
       content = { ops: [
         { insert: 'Foo ' },
         { insert: 'bar', attributes: {bold: true}},
-        { insert: "\n"}
+        { insert: '\n'}
       ]};
-      expected = "<div>Foo <b>bar</b></div>";
+      expected = '<div>Foo <b>bar</b></div>';
     });
 
     describe('contentsToHTML', function() {
@@ -137,7 +136,7 @@ describe('The collaborative debugger', function() {
                 done('Resolve should not have been called');
               },
               reject = function(error) {
-                expect(error).to.equal("An error ocurred while getting Quill content");
+                expect(error).to.equal('An error ocurred while getting Quill content');
                 done();
               };
 
@@ -163,7 +162,7 @@ describe('The collaborative debugger', function() {
               getDelta: function() {
                 return content.ops ;
               }
-            }
+            };
           };
 
           expect(contentGetters.yjs).to.exist;
@@ -177,7 +176,7 @@ describe('The collaborative debugger', function() {
               done('Resolve should not have been called with', arguments);
             },
             reject = function(error) {
-              expect(error).to.equal("Editor object does no exist");
+              expect(error).to.equal('Editor object does no exist');
               done();
             };
           yMock.val = function() {
@@ -210,7 +209,7 @@ describe('The collaborative debugger', function() {
           resolve = function() {
             expect(easyRTCService.setPeerListener).to.have.been.called.once.with(DEBUG_MESSAGE.reply + source, peer);
             done();
-          }
+          };
           reject = function() {
             done('Should not have been called');
           };
@@ -284,17 +283,17 @@ describe('The collaborative debugger', function() {
         });
 
         it('should fail if the first argument is not a promise', function() {
-          var anArray = ['foo'], aFunction = function() {return 'foo'},
+          var anArray = ['foo'], aFunction = function() {return 'foo';},
               fail;
 
           fail = function() {
             collabDebugger.fill(anArray, null, null);
-          }
+          };
           expect(fail).to.throw(/expected first parameter to be a promise/);
 
           fail = function() {
             collabDebugger.fill(aFunction, null, null);
-          }
+          };
           expect(fail).to.throw(/expected first parameter to be a promise/);
         });
 
@@ -310,15 +309,15 @@ describe('The collaborative debugger', function() {
               then: function (resolve, reject) {
                 resolve(strResolve);
               }
-            }
-          }
+            };
+          };
           promiseReject = function () {
             return {
               then: function (resolve, reject) {
                 reject(strReject);
               }
-            }
-          }
+            };
+          };
           collabDebugger.fill(promiseResolve, title, container);
           expect(container).to.have.property('title', title);
           expect(container).to.have.property('content', strResolve);
@@ -334,7 +333,7 @@ describe('The collaborative debugger', function() {
       describe('peerName', function() {
         it('should be a function', function() {
           expect(collabDebugger.peerName).to.be.a('function');
-        })
+        });
 
         it('should call getAttendeeByEasyrtcId function', function() {
           currentConferenceStateMock.getAttendeeByEasyrtcid = chai.spy(function() {
@@ -342,7 +341,7 @@ describe('The collaborative debugger', function() {
               displayName: 'foo'
             };
           });
-          var someRtcId = 'qfsqs dfqsdf qsdf qsdf '
+          var someRtcId = 'qfsqs dfqsdf qsdf qsdf ';
           var ret = collabDebugger.peerName(someRtcId);
 
           expect(currentConferenceStateMock.getAttendeeByEasyrtcid).to.have.been.called.once
@@ -510,7 +509,7 @@ describe('The collaborative debugger', function() {
       it('should expose functions and attributes', function() {
         expect(localScope.compare).to.be.a('function');
         expect(localScope.showCompare).to.be.false;
-        expect(localScope.compareName).to.equal("yjs");
+        expect(localScope.compareName).to.equal('yjs');
         expect(localScope.doCompareYjs).to.be.true;
         expect(localScope.doCompareQuill).to.be.false;
       });

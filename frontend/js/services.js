@@ -115,12 +115,9 @@ angular.module('collaborative-editor')
 
       function wireEditor() {
         properties.quill = editorFactory.getEditor();
-        var ret = yjsService();
-        properties.y = ret.y;
-        properties.connector = ret.connector;
+        properties.y = yjsService.y;
+        properties.connector = yjsService.connector;
         $log.info('Editor objects', properties.y, properties.connector, properties.quill);
-        $window.y = ret.y;
-        $window.quill = properties.quill;
 
         bindEditorService(properties.quill, properties.connector, properties.y);
 
@@ -146,7 +143,8 @@ angular.module('collaborative-editor')
       }
 
       function enableNotification() {
-        var y = yjsService().y;
+        var y = yjsService.y;
+        
         y.observe(function(events) {
          events.forEach(function(event) {
            if (event.name === 'editor') {
