@@ -130,24 +130,10 @@ angular.module('collaborative-editor')
       };
     }
   ])
-  .factory('collaborativeEditorDriver', ['properties', '$rootScope', 'yjsService',
-    'editorFactory', 'bindEditorService', '$log', '$window', 'eventCallbackService',
-    'saverFactory', 'i18nService', 'easyRTCService', 'DEBUG_MESSAGE', 'contentGetters',
-    function(properties, $rootScope, yjsService, editorFactory, bindEditorService, $log,
-             $window, eventCallbackService, saverFactory, i18nService, easyRTCService, DEBUG_MESSAGE, contentGetters) {
-      function showEditor() {
-        if (!properties.quill) {
-          wireEditor();
-        }
-        $rootScope.$emit('paneSize', {width: properties.paneSize.width});
-        properties.editor_visible = true;
-        $rootScope.$broadcast('editor:visible', properties);
-      }
-      function hideEditor() {
-        $rootScope.$emit('paneSize', {width: 0});
-        $rootScope.$broadcast('editor:hidden', properties);
-        properties.editor_visible = false;
-      }
+  .factory('registerCallbacks', ['eventCallbackService', 'i18nService', 'properties',
+    'saverFactory', 'easyRTCService', 'DEBUG_MESSAGE', 'editorFactory', 'yjsService', '$log', 'bindEditorService', 'contentGetters',
+    function(eventCallbackService, i18nService, properties, saverFactory, easyRTCService, DEBUG_MESSAGE, editorFactory,
+      yjsService, $log, bindEditorService, contentGetters) {
 
       function wireEditor() {
         properties.quill = editorFactory.getEditor();
@@ -162,41 +148,7 @@ angular.module('collaborative-editor')
         });
       }
 
-      function toggleEditor() {
-        if (properties.editor_visible) {
-          hideEditor();
-        } else {
-          showEditor();
-        }
-        properties.newNotification = false;
-      }
-
-      function closeEditor() {
-        if (properties.quill) {
-          properties.quill.destroy();
-        }
-        hideEditor();
-      }
-
-      function enableNotification() {
-        var y = yjsService.y;
-
-        y.observe(function(events) {
-         events.forEach(function(event) {
-           if (event.name === 'editor') {
-              y.val('editor')._model.getContent('characters').observe(function() {
-                properties.newNotification = true;
-                properties.documentSaved = false;
-             });
-           }
-          });
-        });
-      }
-
-      function needSaving() {
-        return properties.newNotification || (properties.quill && properties.quill.getText().trim().length > 0 && !properties.documentSaved);
-      }
-
+      /** Registers a callback to be called on 'conferenceleft' event **/
       function registerCallbacksOnConferenceLeft() {
         i18nService.getCatalog().then(function(catalog) {
           eventCallbackService.on('conferenceleft', function() {
@@ -278,10 +230,68 @@ angular.module('collaborative-editor')
         }, DEBUG_MESSAGE.ask);
       }
 
+      function needSaving() {
+        return properties.newNotification || (properties.quill && properties.quill.getText().trim().length > 0 && !properties.documentSaved);
+      }
+
       replyOnAskWholeContent();
-      enableNotification();
       registerCallbacksOnConferenceLeft();
       registerCallbacksOnBeforeUnload();
+
+      return {
+        wireEditor: wireEditor
+      };
+    }
+  ])
+  /** Make it possible to toggle, show, hide and notify of events of the editor **/
+  .factory('collaborativeEditorDriver', ['properties', '$rootScope', 'registerCallbacks', '$window', 'yjsService',
+    function(properties, $rootScope, registerCallbacks, $window, yjsService) {
+      function showEditor() {
+        if (!properties.quill) {
+          registerCallbacks.wireEditor();
+        }
+        $rootScope.$emit('paneSize', {width: properties.paneSize.width});
+        properties.editor_visible = true;
+        $rootScope.$broadcast('editor:visible', properties);
+      }
+      function hideEditor() {
+        $rootScope.$emit('paneSize', {width: 0});
+        $rootScope.$broadcast('editor:hidden', properties);
+        properties.editor_visible = false;
+      }
+
+      function toggleEditor() {
+        if (properties.editor_visible) {
+          hideEditor();
+        } else {
+          showEditor();
+        }
+        properties.newNotification = false;
+      }
+
+      function closeEditor() {
+        if (properties.quill) {
+          properties.quill.destroy();
+        }
+        hideEditor();
+      }
+
+      function enableNotification() {
+        var y = yjsService.y;
+
+        y.observe(function(events) {
+         events.forEach(function(event) {
+           if (event.name === 'editor') {
+              y.val('editor')._model.getContent('characters').observe(function() {
+                properties.newNotification = true;
+                properties.documentSaved = false;
+             });
+           }
+          });
+        });
+      }
+
+      enableNotification();
 
       return {
         toggleEditor: toggleEditor,
