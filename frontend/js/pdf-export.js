@@ -1,5 +1,11 @@
 'use strict';
 
+/**
+  * The tricky part here is to translate quill's output (see @link{https://atom.io/packages/fold-functions})
+  * into pdfmake (see @link{https://atom.io/packages/fold-functions}) input. To do that, we iterate over each
+  * deltas. A line is made of multiple delta and separated by a '\n'. The attributes and the decorations
+  * are parsed using the constant map given in QUILL_TO_PDFMAKE_STYLE_EQUIVALENCE.
+  **/
 angular.module('collaborative-editor')
   .run(['QUILL_TO_PDFMAKE_STYLE_EQUIVALENCE', '$window', 'saverFactory', 'i18nService',
     function(QUILL_TO_PDFMAKE_STYLE_EQUIVALENCE, $window, saverFactory, i18nService) {

@@ -1,6 +1,10 @@
 'use strict';
 
 angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.ngStrap'])
+  /**
+    * This is a hack to convert deltas (@see https://github.com/ottypes/rich-text) into html
+    * using quill
+    **/
   .factory('contentsToHtml', ['$window', function($window) {
     var quill, container = angular.element('<div></div>').get(0);
     return function(contents) {
@@ -8,9 +12,18 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
       quill.setContents(contents);
       return quill.getHTML();
     };
-  }]).factory('contentGetters', ['yjsService', '$q', 'editorFactory', 'contentsToHtml', 'easyRTCService', 'DEBUG_MESSAGE',
+  }])
+  /**
+    * Exposes local quill and yjs content getter (as HTML) and a remote contentGetter as promises.
+    **/
+  .factory('contentGetters', ['yjsService', '$q', 'editorFactory', 'contentsToHtml', 'easyRTCService', 'DEBUG_MESSAGE',
     function(yjsService, $q, editorFactory, contentsToHtml, easyRTCService, DEBUG_MESSAGE) {
-      var getYjsContents = function() {
+
+      /**
+        * Get the local yjs content as HTML
+        * @return {Promise} return a promise
+        **/
+      function getYjsContents() {
         return $q(function(resolve, reject) {
           var html, content;
           if (!yjsService.y) {
@@ -23,10 +36,13 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
             resolve(html);
           }
         });
-      };
+      }
 
-      var getQuillContents = function() {
-
+      /**
+        * Get the local quill content as HTML
+        * @return {Promise} return a promise
+        **/
+      function getQuillContents() {
         return $q(function(resolve, reject) {
           var html;
           if (editorFactory.getEditor() && editorFactory.getEditor().getHTML) {
@@ -37,10 +53,15 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
           }
 
         });
-      };
+      }
 
+      /**
+        * Get some remote content
+        * @param {String} peerId the peer to contact
+        * @param {String} source either 'yjs' or 'quill'
+        * @return {Promise} return a promise
+        **/
       function getRemote(peerId, source) {
-
         return function() {
           return $q(function(resolve, reject) {
             function listener(sendersEasyrtcid, msgType, msgData) {
@@ -86,9 +107,16 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
         return currentConferenceState.getAttendeeByEasyrtcid(id).displayName;
       }
 
+      /**
+        * Fill the container by calling the promise.
+        * @param {Promise} promise the promise to get the content
+        * @param {String} title the title of the container
+        * @param {Object} container the container to which attach the title and the content
+        **/
       function fill(promise, title, container) {
         var prom;
         var error = new Error('expected first parameter to be a promise');
+
         if (!angular.isFunction(promise)) {
           throw error;
         } else {
@@ -108,60 +136,11 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
         });
       }
 
-      function compareGenerator(getRemoteDataOf) {
-        return function(initialMatch, initialMisMatch) {
-          var match = initialMatch || [],
-            mismatch = initialMatch || [],
-            getLocalData = contentGetters.yjs(),
-            peers = yjsPeers();
-
-          return $q(function(resolve, reject) {
-            if (peers.length === 0) {
-              resolve();
-            }
-            peers.forEach(function(peer) {
-              getRemoteDataOf(peer.id)().then(function(data) {
-
-                getLocalData.then(function(localData) {
-
-                  if (data.content === localData.content) {
-                    if (!(peer in match)) {
-                      match.push(peer);
-                    }
-                  } else {
-                    if (!(peer in mismatch)) {
-                      mismatch.push(peer);
-                    }
-                  }
-
-                  if (match.length + mismatch.length === peers.length) {
-                    if (mismatch.length === 0) {
-                      resolve({match: match, mismatch: mismatch});
-                    } else {
-                      reject({match: match, mismatch: mismatch});
-                    }
-                  }
-                });
-              });
-            });
-          });
-        };
-      }
-
-      var compareEveryYjs = compareGenerator(function(peer) {
-            return contentGetters.getRemote(peer, 'Yjs');
-          }),
-          compareEveryQuill = compareGenerator(function(peer) {
-            return contentGetters.getRemote(peer, 'Quill');
-          });
-
       var service = {
         peers: yjsPeers,
         yjs: yjs,
         fill: fill,
-        peerName: peerName,
-        compareEveryYjs: compareEveryYjs,
-        compareEveryQuill: compareEveryQuill
+        peerName: peerName
       };
 
       return service;
@@ -267,6 +246,7 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
           scope.peers = peers;
           peers.forEach(function(peer) {
             var promises = [contentGetters.yjs(), contentGetters.quill()];
+
             if (scope.doCompareYjs) {
               promises.push(contentGetters.getRemote(peer.id, 'yjs')());
             }
@@ -275,7 +255,7 @@ angular.module('collaborativeDebugger', ['collaborative-editor', 'yjs', 'mgcrea.
             }
 
             $q.all(promises).then(function(results) {
-              // get all the promises and check they're equal
+              // one liner that check that all the results are equal
               peer.hasSameContent = results.reduce(function(a, b) {
                 return (a === b) ? a : false;
               }) === results[0];

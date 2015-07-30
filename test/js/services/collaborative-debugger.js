@@ -1,5 +1,5 @@
 'use strict';
-/*global chai*/
+/* global chai */
 
 var expect = chai.expect;
 describe('The collaborative debugger', function() {
