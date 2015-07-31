@@ -59,26 +59,24 @@ describe('collaborative editor directives', function() {
         };
 
         var messageListeners = [];
-        return function() {
-          return {
-            y: {
-              val: function() {
-                return editorObject;
-              },
-              observe: function(cb) {
-                yCb = cb;
-              }
+        return {
+          y: {
+            val: function() {
+              return editorObject;
             },
-            connector: {
-              whenSynced: function() {},
-              addMessageListener: function(callback) {
-                messageListeners.push(callback);
-              },
-              getMessageListeners: function() {
-                return messageListeners;
-              }
+            observe: function(cb) {
+              yCb = cb;
             }
-          };
+          },
+          connector: {
+            whenSynced: function() {},
+            addMessageListener: function(callback) {
+              messageListeners.push(callback);
+            },
+            getMessageListeners: function() {
+              return messageListeners;
+            }
+          }
         };
       });
       $provide.value('contentGetters', function() {
@@ -241,19 +239,21 @@ describe('collaborative editor directives', function() {
     });
 
     it('should call the scope.toggleEditor on click', function(done) {
-      button.scope().toggleEditor = function() { done() };
+      button.scope().toggleEditor = function() { done(); };
 
       button.find('a').click();
     });
   });
 
   describe('editorClickHandler', function() {
-    var element, start, end, length;
+    var element, start, end, length, quill;
 
     beforeEach(function() {
       start = 10;
       end = 15;
       length = 20;
+      quill = properties.quill;
+
       quill.setSelection = chai.spy();
       quill.getSelection = chai.spy(function() {
         return {start: start, end: end};
@@ -261,7 +261,6 @@ describe('collaborative editor directives', function() {
       quill.getLength = chai.spy(function() {
           return length;
       });
-      properties.quill = quill;
 
     });
 
@@ -294,5 +293,5 @@ describe('collaborative editor directives', function() {
 
       expect(quill.setSelection).to.have.been.called.with(length-1, length-1);
     });
-  })
+  });
 });

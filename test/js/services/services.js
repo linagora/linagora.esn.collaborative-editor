@@ -5,10 +5,10 @@
 var expect = chai.expect;
 
 describe('Collaborative editor services', function() {
-  var scope, $rootScope, $window, $compile;
+  var scope, $rootScope, $compile;
   var eventCallbackService = {}, onCallback = {}, quillOnCallback, quillOnEvent;
   var charactersCb, editorObject, yCb;
-  var previousQuill;
+
   var i18nService = {
     __: function(key) {
       return {
@@ -42,7 +42,7 @@ describe('Collaborative editor services', function() {
                 observe: function(cb) {
                   charactersCb = cb;
                 }
-              };;
+              };
             }
           },
           getText: function() {
@@ -51,26 +51,24 @@ describe('Collaborative editor services', function() {
         };
 
         var messageListeners = [];
-        return function() {
-          return {
-            y: {
-              val: function() {
-                return editorObject;
-              },
-              observe: function(cb) {
-                yCb = cb;
-              }
+        return  {
+          y: {
+            val: function() {
+              return editorObject;
             },
-            connector: {
-              whenSynced: function() {},
-              addMessageListener: function(callback) {
-                messageListeners.push(callback);
-              },
-              getMessageListeners: function() {
-                return messageListeners;
-              }
+            observe: function(cb) {
+              yCb = cb;
             }
-          };
+          },
+          connector: {
+            whenSynced: function() {},
+            addMessageListener: function(callback) {
+              messageListeners.push(callback);
+            },
+            getMessageListeners: function() {
+              return messageListeners;
+            }
+          }
         };
       });
       $provide.value('currentConferenceState', function (){
@@ -89,7 +87,7 @@ describe('Collaborative editor services', function() {
       $provide.value('contentGetters', {});
       function Quill() {
         return true;
-      };
+      }
       Quill.events = {
         TEXT_CHANGE: 'text-change'
       };
@@ -351,7 +349,7 @@ describe('Collaborative editor services', function() {
       properties.documentSaved = false;
       properties.quill = {
         getText: function() {
-          return "Test";
+          return 'Test';
         }
       };
 
@@ -363,7 +361,7 @@ describe('Collaborative editor services', function() {
       properties.documentSaved = false;
       properties.quill = {
         getText: function() {
-          return "";
+          return '';
         }
       };
 
@@ -375,7 +373,7 @@ describe('Collaborative editor services', function() {
       properties.documentSaved = true;
       properties.quill = {
         getText: function() {
-          return "Test";
+          return 'Test';
         }
       };
 
@@ -393,7 +391,7 @@ describe('Collaborative editor services', function() {
       properties.documentSaved = false;
       properties.quill = {
         getText: function() {
-          return "Test";
+          return 'Test';
         }
       };
 
@@ -405,7 +403,7 @@ describe('Collaborative editor services', function() {
       properties.documentSaved = false;
       properties.quill = {
         getText: function() {
-          return "";
+          return '';
         }
       };
 
@@ -417,7 +415,7 @@ describe('Collaborative editor services', function() {
       properties.documentSaved = true;
       properties.quill = {
         getText: function() {
-          return "Test";
+          return 'Test';
         }
       };
 

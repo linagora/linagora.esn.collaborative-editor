@@ -1,9 +1,20 @@
 'use strict';
 
 angular.module('collaborative-editor')
+  /**
+    * A factory to register saver fold-functions
+    * @return {Object} an object containing a register function, an unregister function and a get function
+    **/
   .factory('saverFactory', ['i18nService', function() {
     var savers = [];
     return {
+      /**
+        * Register a new saver
+        * @param {String} name the name of the saver
+        * @param {Function} the function tocall to save
+        * @param {Object} other an object that can defined beforeLink, afterLink
+            and default to decorate the 'save' button
+        **/
       register: function(name, exportFunction, other) {
         savers.push({
           name: name,
@@ -11,11 +22,17 @@ angular.module('collaborative-editor')
           other: other
         });
       },
+      /** Unregister a function
+        * @param {String} name the name of the saver to remove
+        **/
       unregister: function(name) {
         savers = savers.filter(function(saver) {
           return saver.name !== name;
         });
       },
+      /** Get all the savers
+        * @return {Array} an array containing the savers
+        **/
       get: function() {
         return savers;
       }
@@ -31,6 +48,10 @@ angular.module('collaborative-editor')
       };
     };
   })
+  /**
+    * Creates an editor object lazily
+    * @return {Object} an object with a getEditor method to get and initialize the editor
+    **/
   .factory('editorFactory', ['$window', '$document', function($window) {
     var quill = false;
     return {
@@ -52,6 +73,9 @@ angular.module('collaborative-editor')
       }
     };
   }])
+  /**
+    * Attach a name provider and a color provider to the yjs rich text object
+    **/
   .service('attachInformationProviderService', ['currentConferenceState', 'attendeeColorsService',
     function(currentConferenceState, attendeeColorsService) {
       return function(richtextInstance) {
@@ -66,6 +90,17 @@ angular.module('collaborative-editor')
       };
     }
   ])
+  /**
+    * Bind the quill editor, yjs and yjs' richt-text object together
+    *
+    * Since yjs is only available when there's a connection, everything is wrapped inside a connector.whenSynced
+    * Any yjs object has an observer method that is called each time one of its element (but not subelements) is modified.
+    * If a root object, like the rich-text object is modified, we have to wire it back to quill.
+    *
+    * On startup, either the rich-text object is undefined and we initialize it with quill and wire it to yjs (case (2))
+    * either is is defined and bound to yjs (case (1)) and we wire it to quill
+
+    **/
   .service('bindEditorService', ['attachInformationProviderService', '$window',
     function(attachInformationProvider, $window) {
       return function(editor, connector, y) {
@@ -81,11 +116,12 @@ angular.module('collaborative-editor')
               }
             }
           });
-          if (y.val('editor') === undefined) {
+
+          if (y.val('editor') === undefined) { // case (1)
             richText = new $window.Y.RichText('QuillJs', editor);
             attachInformationProvider(richText);
             y.val('editor', richText);
-          } else {
+          } else { // case (2)
             richText = y.val('editor');
             attachInformationProvider(richText);
             richText.bind('QuillJs', editor);
@@ -94,33 +130,16 @@ angular.module('collaborative-editor')
       };
     }
   ])
-  .factory('collaborativeEditorDriver', ['properties', '$rootScope', 'yjsService',
-    'editorFactory', 'bindEditorService', '$log', '$window', 'eventCallbackService',
-    'saverFactory', 'i18nService', 'easyRTCService', 'DEBUG_MESSAGE', 'contentGetters',
-    function(properties, $rootScope, yjsService, editorFactory, bindEditorService, $log,
-             $window, eventCallbackService, saverFactory, i18nService, easyRTCService, DEBUG_MESSAGE, contentGetters) {
-      function showEditor() {
-        if (!properties.quill) {
-          wireEditor();
-        }
-        $rootScope.$emit('paneSize', {width: properties.paneSize.width});
-        properties.editor_visible = true;
-        $rootScope.$broadcast('editor:visible', properties);
-      }
-      function hideEditor() {
-        $rootScope.$emit('paneSize', {width: 0});
-        $rootScope.$broadcast('editor:hidden', properties);
-        properties.editor_visible = false;
-      }
+  .factory('registerCallbacks', ['eventCallbackService', 'i18nService', 'properties',
+    'saverFactory', 'easyRTCService', 'DEBUG_MESSAGE', 'editorFactory', 'yjsService', '$log', 'bindEditorService', 'contentGetters',
+    function(eventCallbackService, i18nService, properties, saverFactory, easyRTCService, DEBUG_MESSAGE, editorFactory,
+      yjsService, $log, bindEditorService, contentGetters) {
 
       function wireEditor() {
         properties.quill = editorFactory.getEditor();
-        var ret = yjsService();
-        properties.y = ret.y;
-        properties.connector = ret.connector;
+        properties.y = yjsService.y;
+        properties.connector = yjsService.connector;
         $log.info('Editor objects', properties.y, properties.connector, properties.quill);
-        $window.y = ret.y;
-        $window.quill = properties.quill;
 
         bindEditorService(properties.quill, properties.connector, properties.y);
 
@@ -129,40 +148,7 @@ angular.module('collaborative-editor')
         });
       }
 
-      function toggleEditor() {
-        if (properties.editor_visible) {
-          hideEditor();
-        } else {
-          showEditor();
-        }
-        properties.newNotification = false;
-      }
-
-      function closeEditor() {
-        if (properties.quill) {
-          properties.quill.destroy();
-        }
-        hideEditor();
-      }
-
-      function enableNotification() {
-        var y = yjsService().y;
-        y.observe(function(events) {
-         events.forEach(function(event) {
-           if (event.name === 'editor') {
-              y.val('editor')._model.getContent('characters').observe(function() {
-                properties.newNotification = true;
-                properties.documentSaved = false;
-             });
-           }
-          });
-        });
-      }
-
-      function needSaving() {
-        return properties.newNotification || (properties.quill && properties.quill.getText().trim().length > 0 && !properties.documentSaved);
-      }
-
+      /** Registers a callback to be called on 'conferenceleft' event **/
       function registerCallbacksOnConferenceLeft() {
         i18nService.getCatalog().then(function(catalog) {
           eventCallbackService.on('conferenceleft', function() {
@@ -212,6 +198,7 @@ angular.module('collaborative-editor')
         });
       }
 
+      /** Registers a callback to be called on 'beforeunload' event **/
       function registerCallbacksOnBeforeUnload() {
         i18nService.__('There is an unsaved document in the collaborative editor, do you want to stay in the conference and save it?').then(function(text) {
           eventCallbackService.on('beforeunload', function() {
@@ -220,6 +207,7 @@ angular.module('collaborative-editor')
         });
       }
 
+      /** Listens to P2P debug messages and reply to them **/
       function replyOnAskWholeContent() {
         easyRTCService.setPeerListener(function(sendersEasyrtcid, msgType, msgData) {
           var source = msgData;
@@ -242,10 +230,68 @@ angular.module('collaborative-editor')
         }, DEBUG_MESSAGE.ask);
       }
 
+      function needSaving() {
+        return properties.newNotification || (properties.quill && properties.quill.getText().trim().length > 0 && !properties.documentSaved);
+      }
+
       replyOnAskWholeContent();
-      enableNotification();
       registerCallbacksOnConferenceLeft();
       registerCallbacksOnBeforeUnload();
+
+      return {
+        wireEditor: wireEditor
+      };
+    }
+  ])
+  /** Make it possible to toggle, show, hide and notify of events of the editor **/
+  .factory('collaborativeEditorDriver', ['properties', '$rootScope', 'registerCallbacks', '$window', 'yjsService',
+    function(properties, $rootScope, registerCallbacks, $window, yjsService) {
+      function showEditor() {
+        if (!properties.quill) {
+          registerCallbacks.wireEditor();
+        }
+        $rootScope.$emit('paneSize', {width: properties.paneSize.width});
+        properties.editor_visible = true;
+        $rootScope.$broadcast('editor:visible', properties);
+      }
+      function hideEditor() {
+        $rootScope.$emit('paneSize', {width: 0});
+        $rootScope.$broadcast('editor:hidden', properties);
+        properties.editor_visible = false;
+      }
+
+      function toggleEditor() {
+        if (properties.editor_visible) {
+          hideEditor();
+        } else {
+          showEditor();
+        }
+        properties.newNotification = false;
+      }
+
+      function closeEditor() {
+        if (properties.quill) {
+          properties.quill.destroy();
+        }
+        hideEditor();
+      }
+
+      function enableNotification() {
+        var y = yjsService.y;
+
+        y.observe(function(events) {
+         events.forEach(function(event) {
+           if (event.name === 'editor') {
+              y.val('editor')._model.getContent('characters').observe(function() {
+                properties.newNotification = true;
+                properties.documentSaved = false;
+             });
+           }
+          });
+        });
+      }
+
+      enableNotification();
 
       return {
         toggleEditor: toggleEditor,
