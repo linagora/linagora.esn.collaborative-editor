@@ -6,7 +6,7 @@ var expect = chai.expect;
 var assert = chai.assert;
 
 describe('collaborative editor directives', function() {
-  var scope, $rootScope, $window, element, $compile, properties = {};
+  var scope, $rootScope, $window, element, $compile, properties = {}, stateValue;
   var quillOnEvent, quillOnCallback, previousQuill;
   var charactersObject, charactersCb, editorObject, yCb;
 
@@ -100,6 +100,16 @@ describe('collaborative editor directives', function() {
 
       $provide.value('i18nService', i18nService);
       $provide.value('properties', properties);
+      $provide.value('$state', {
+        go: function (state) {
+          stateValue = state;
+        }
+      });
+      $provide.value('detectUtils', {
+        isMobile: function () {
+          return true;
+        }
+      });
       $provide.value('eventCallbackService', eventCallbackService);
       $provide.value('saverFactory', {
         register: function() {},
@@ -215,6 +225,22 @@ describe('collaborative editor directives', function() {
       scope.$emit('angular-resizable.resizing', { width: 1000 });
       scope.$digest();
 
+      done();
+    });
+
+    it('should switch to editor state when receiving editor:visible ', function(done) {
+      scope.$emit('editor:visible', {paneSize: {
+        width: '100%'
+      }});
+      expect(stateValue).to.equal('app.editor-mobile');
+      scope.$digest();
+      done();
+    });
+
+    it('should switch to conference state when receiving editor:hidden ', function(done) {
+      scope.$emit('editor:hidden');
+      expect(stateValue).to.equal('app.conference');
+      scope.$digest();
       done();
     });
   });

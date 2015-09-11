@@ -37,7 +37,7 @@ angular.module('collaborative-editor')
         link: link
       };
     }])
-  .directive('liveConferenceEditor', ['$rootScope', 'properties', '$window', 'detectUtils', function($rootScope, properties, $window, detectUtils) {
+  .directive('liveConferenceEditor', ['$rootScope', 'properties', '$window', 'detectUtils', '$state', function($rootScope, properties, $window, detectUtils, $state) {
     function controller($scope) {
       $scope.colors = ['red', 'green', 'blue', 'yellow', 'black', 'white'];
       $scope.quill = false;
@@ -76,10 +76,17 @@ angular.module('collaborative-editor')
 
       scope.$on('editor:visible', function(evt, data) {
         var width = limitWidth(data.paneSize.width) + '%';
+        if (detectUtils.isMobile()) {
+          $state.go('app.editor-mobile');
+        }
         element.css('width', width);
         element.addClass('visible');
       });
-      scope.$on('editor:hidden', function(evt, data) {
+
+      scope.$on('editor:hidden', function() {
+        if (detectUtils.isMobile()) {
+          $state.go('app.conference');
+        }
         element.css('width', '0');
         element.removeClass('visible');
       });
