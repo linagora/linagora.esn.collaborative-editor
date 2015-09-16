@@ -32,7 +32,6 @@
     "chai-spies": "chaijs/chai-spies#~0.6.0",
     "angular-liveconference": "https://ci.open-paas.org/stash/scm/opangmod/angular-liveconference.git",
     "opangular": "https://ci.open-paas.org/stash/scm/opangmod/opangular.git",
-    "awesome-collaborative-editor": "https://ci.open-paas.org/stash/scm/om/awesome-yjs.git",
     "awesome-yjs": "https://ci.open-paas.org/stash/scm/om/awesome-yjs.git",
     "angular-strap": "https://ci.open-paas.org/stash/scm/or/angular-strap.git"
   },
