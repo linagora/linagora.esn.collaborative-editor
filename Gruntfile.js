@@ -21,7 +21,7 @@ module.exports = function(grunt) {
       options: {
         jshintrc: '.jshintrc',
         reporter: CI && 'checkstyle',
-        reporterOutput: CI && 'jshint.xml'
+        reporterOutput: CI ? CI : 'jshint.xml'
       },
       all: {
         src: [
