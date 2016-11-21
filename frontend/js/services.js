@@ -148,6 +148,10 @@ angular.module('collaborative-editor')
         });
       }
 
+      function needSaving() {
+        return properties.newNotification || (properties.quill && properties.quill.getText().trim().length > 0 && !properties.documentSaved);
+      }
+
       /** Registers a callback to be called on 'conferenceleft' event **/
       function registerCallbacksOnConferenceLeft() {
         i18nService.getCatalog().then(function(catalog) {
@@ -228,10 +232,6 @@ angular.module('collaborative-editor')
             easyRTCService.sendData(sendersEasyrtcid, DEBUG_MESSAGE.reply + source, {error: error});
           });
         }, DEBUG_MESSAGE.ask);
-      }
-
-      function needSaving() {
-        return properties.newNotification || (properties.quill && properties.quill.getText().trim().length > 0 && !properties.documentSaved);
       }
 
       replyOnAskWholeContent();
