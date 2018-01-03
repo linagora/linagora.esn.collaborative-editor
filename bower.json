@@ -1,5 +1,5 @@
 {
-  "name": "awesome-collaborative-editor",
+  "name": "linagora.esn.collaborative-editor",
   "main": "index.js",
   "version": "0.0.0",
   "authors": [
@@ -32,7 +32,7 @@
     "chai-spies": "chaijs/chai-spies#~0.6.0",
     "angular-liveconference": "https://ci.open-paas.org/stash/scm/opangmod/angular-liveconference.git",
     "opangular": "https://ci.open-paas.org/stash/scm/opangmod/opangular.git",
-    "awesome-yjs": "https://ci.open-paas.org/stash/scm/om/awesome-yjs.git",
+    "awesome-yjs": "linagora/linagora.esn.yjs",
     "angular-strap": "https://ci.open-paas.org/stash/scm/or/angular-strap.git"
   },
   "resolutions": {
