@@ -3,7 +3,6 @@
 /* global chai: false */
 
 var expect = chai.expect;
-var assert = chai.assert;
 
 describe('collaborative editor directives', function() {
   var scope, $rootScope, $window, element, $compile, properties = {}, stateValue;
