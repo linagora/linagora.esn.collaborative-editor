@@ -128,9 +128,9 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-eslint');
-  grunt.loadNpmTasks('grunt-lint-pattern');
+  grunt.loadNpmTasks('@linagora/grunt-lint-pattern');
   grunt.loadNpmTasks('grunt-puglint');
-  grunt.loadNpmTasks('grunt-run-grunt');
+  grunt.loadNpmTasks('@linagora/grunt-run-grunt');
   grunt.loadNpmTasks('grunt-html2js');
 
   grunt.loadTasks('tasks');
