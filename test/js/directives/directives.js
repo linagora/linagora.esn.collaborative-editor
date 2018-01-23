@@ -39,7 +39,7 @@ describe('collaborative editor directives', function() {
     module('jadeTemplates');
     module(function($provide) {
       $provide.service('yjsService', function() {
-        var tmp = chai.spy(function() {});
+        var tmp = chai.spy();
 
         charactersObject = {
           observe: tmp
@@ -63,7 +63,7 @@ describe('collaborative editor directives', function() {
             val: function() {
               return editorObject;
             },
-            observe: function() {}
+            observe: angular.noop
           },
           connector: {
             whenSynced: function() {},
@@ -135,7 +135,7 @@ describe('collaborative editor directives', function() {
       TEXT_CHANGE: 'text-change'
     };
 
-    Quill.prototype.on = chai.spy(function() {});
+    Quill.prototype.on = chai.spy();
     $window = _$window_;
     previousQuill = $window.Quill;
     $window.Quill = Quill;

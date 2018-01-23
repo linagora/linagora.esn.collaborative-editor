@@ -16,7 +16,7 @@ describe('The collaborative debugger', function() {
       }
     },
     connectorMock = {
-      whenSynced: function() {},
+      whenSynced: angular.noop,
       addMessageListener: function(callback) {
         messageListeners.push(callback);
       },
@@ -35,7 +35,7 @@ describe('The collaborative debugger', function() {
   beforeEach(function() {
     angular.mock.module(function($provide) {
       var emptyFun = function() {
-        return function() {};
+        return angular.noop;
       };
 
       $provide.service('yjsService', function() {
@@ -476,6 +476,7 @@ describe('The collaborative debugger', function() {
           var fail = function() {
             modalScope.toggleCompareOwnAndRemote();
           };
+
           expect(fail).to.throw(/missing first argument/);
 
           fail = function() {
@@ -533,7 +534,6 @@ describe('The collaborative debugger', function() {
         };
 
         beforeEach(function() {
-
           contentGetters.yjs = chai.spy();
           contentGetters.quill = chai.spy(fakePromise('abcd'));
           contentGetters.yjs = chai.spy(fakePromise('abcd'));
