@@ -1,8 +1,6 @@
 'use strict';
 
 module.exports = function(grunt) {
-  var CI = grunt.option('ci');
-
   var testArgs = (function() {
     var opts = ['test', 'chunk'];
     var args = {};
@@ -17,25 +15,6 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    jshint: {
-      options: {
-        jshintrc: '.jshintrc',
-        reporter: CI && 'checkstyle',
-        reporterOutput: CI ? CI : 'jshint.xml'
-      },
-      all: {
-        src: [
-          'Gruntfile.js',
-          'frontend/js/**/*.js',
-          'backend/**/*.js'
-        ]
-      },
-      quick: {
-        // You must run the prepare-quick-lint target before jshint:quick,
-        // files are filled in dynamically.
-        src: []
-      }
-    },
     html2js: {
       options: {
         module: 'op.collaborative-editor-templates',
@@ -50,24 +29,23 @@ module.exports = function(grunt) {
         dest: 'src/js/templates.js'
       }
     },
-    gjslint: {
-      options: {
-        flags: [
-          '--disable 0110',
-          '--nojsdoc',
-          '-e test/karma-include',
-          '-x src/js/templates.js'
-        ],
-        reporter: {
-          name: CI ? 'gjslint_xml' : 'console',
-          dest: CI ? 'gjslint.xml' : undefined
-        }
-      },
+    eslint: {
       all: {
-        src: ['<%= jshint.all.src %>']
+        src: [
+          'Gruntfile.js',
+          'Gruntfile-tests.js',
+          'test/**/**/*.js',
+          'src/**/*.js'
+        ]
       },
       quick: {
-        src: ['<%= jshint.quick.src %>']
+        src: [],
+        options: {
+          quiet: true
+        }
+      },
+      options: {
+        quiet: true
       }
     },
     lint_pattern: {
@@ -77,10 +55,10 @@ module.exports = function(grunt) {
         ]
       },
       all: {
-        src: ['<%= jshint.all.src %>']
+        src: ['<%= eslint.all.src %>']
       },
       quick: {
-        src: ['<%= jshint.quick.src %>']
+        src: ['<%= eslint.quick.src %>']
       }
     },
     puglint: {
@@ -146,8 +124,7 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-gjslint');
+  grunt.loadNpmTasks('grunt-eslint');
   grunt.loadNpmTasks('grunt-lint-pattern');
   grunt.loadNpmTasks('grunt-puglint');
   grunt.loadNpmTasks('grunt-run-grunt');
@@ -157,7 +134,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test-frontend', ['run_grunt:frontend']);
   grunt.registerTask('test', ['linters', 'run_grunt:frontend']);
-  grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'gjslint:all', 'lint_pattern:all', 'puglint:all']);
+  grunt.registerTask('linters', 'Check code for lint', ['eslint:all', 'lint_pattern:all', 'puglint:all']);
   grunt.registerTask('templates', ['html2js']);
 
   /**
@@ -165,7 +142,7 @@ module.exports = function(grunt) {
    *   grunt linters-dev              # Run linters against files changed in git
    *   grunt linters-dev -r 51c1b6f   # Run linters against a specific changeset
    */
-  grunt.registerTask('linters-dev', 'Check changed files for lint', ['prepare-quick-lint', 'jshint:quick', 'gjslint:quick', 'lint_pattern:quick']);
+  grunt.registerTask('linters-dev', 'Check changed files for lint', ['prepare-quick-lint', 'eslint:quick', 'lint_pattern:quick']);
 
   grunt.registerTask('default', ['templates', 'linters', 'test-frontend']);
   grunt.registerTask('compile', ['templates']);

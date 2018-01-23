@@ -39,14 +39,9 @@ module.exports = function(config) {
       cacheIdFromPath: function(filepath) {
         var cacheId = '';
 
-        console.log('RENAUD');
-        console.log(filepath);
-
         if (filepath.match(/^frontend*/)) {
           cacheId = '/editor' + filepath.substr(8).replace('.pug', '.html');
         }
-
-        console.log(cacheId);
 
         return cacheId;
       },
