@@ -4,12 +4,15 @@ module.exports = function(grunt) {
   var testArgs = (function() {
     var opts = ['test', 'chunk'];
     var args = {};
+
     opts.forEach(function(optName) {
       var opt = grunt.option(optName);
+
       if (opt) {
         args[optName] = '' + opt;
       }
     });
+
     return args;
   })();
 

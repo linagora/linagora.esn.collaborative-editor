@@ -6,8 +6,8 @@ var expect = chai.expect;
 
 describe('collaborative editor directives', function() {
   var scope, $rootScope, $window, element, $compile, properties = {}, stateValue;
-  var quillOnEvent, quillOnCallback, previousQuill;
-  var charactersObject, charactersCb, editorObject, yCb;
+  var previousQuill;
+  var charactersObject, editorObject;
 
   var eventCallbackService = {
     on: function() {},
@@ -27,21 +27,20 @@ describe('collaborative editor directives', function() {
           cb({
             Markdown: 'Markdown',
             'Raw text': 'Raw text',
-            'PDF': 'PDF'
+            PDF: 'PDF'
           });
         }
       };
     }
   };
 
-  beforeEach(function () {
+  beforeEach(function() {
     module('collaborative-editor');
     module('jadeTemplates');
-    module(function ($provide) {
-      $provide.service('yjsService', function () {
-        var tmp = chai.spy(function(cb) {
-          charactersCb = cb;
-        });
+    module(function($provide) {
+      $provide.service('yjsService', function() {
+        var tmp = chai.spy(function() {});
+
         charactersObject = {
           observe: tmp
         };
@@ -58,14 +57,13 @@ describe('collaborative editor directives', function() {
         };
 
         var messageListeners = [];
+
         return {
           y: {
             val: function() {
               return editorObject;
             },
-            observe: function(cb) {
-              yCb = cb;
-            }
+            observe: function() {}
           },
           connector: {
             whenSynced: function() {},
@@ -80,6 +78,7 @@ describe('collaborative editor directives', function() {
       });
       $provide.value('contentGetters', function() {
         function empty() { return ''; }
+
         return {
           quill: empty,
           yjs: empty,
@@ -93,19 +92,19 @@ describe('collaborative editor directives', function() {
         setPeerListener: function() {}
       });
 
-      $provide.value('attendeeColorsService', function () {
+      $provide.value('attendeeColorsService', function() {
         return true;
       });
 
       $provide.value('i18nService', i18nService);
       $provide.value('properties', properties);
       $provide.value('$state', {
-        go: function (state) {
+        go: function(state) {
           stateValue = state;
         }
       });
       $provide.value('detectUtils', {
-        isMobile: function () {
+        isMobile: function() {
           return true;
         }
       });
@@ -124,7 +123,7 @@ describe('collaborative editor directives', function() {
     });
   });
 
-  beforeEach(inject(function (_$rootScope_, _$compile_, _$window_) {
+  beforeEach(inject(function(_$rootScope_, _$compile_, _$window_) {
     $rootScope = _$rootScope_;
     $compile = _$compile_;
     scope = $rootScope.$new();
@@ -136,10 +135,7 @@ describe('collaborative editor directives', function() {
       TEXT_CHANGE: 'text-change'
     };
 
-    Quill.prototype.on = chai.spy(function(event, cb) {
-      quillOnEvent = event;
-      quillOnCallback = cb;
-    });
+    Quill.prototype.on = chai.spy(function() {});
     $window = _$window_;
     previousQuill = $window.Quill;
     $window.Quill = Quill;
@@ -194,6 +190,7 @@ describe('collaborative editor directives', function() {
 
     it('should create a quill instance on first call', function() {
       var localScope = element.scope();
+
       expect(localScope.properties.quill).to.not.exist;
 
       localScope.toggleEditor();
@@ -246,6 +243,7 @@ describe('collaborative editor directives', function() {
 
   describe('editorToggleElement', function() {
     var button;
+
     beforeEach(function() {
       button = angular.element(
         '<editor-toggle-element></editor-toggle-element>'
@@ -316,7 +314,7 @@ describe('collaborative editor directives', function() {
       quill.getSelection = chai.spy(function() { return null; });
       element.click();
 
-      expect(quill.setSelection).to.have.been.called.with(length-1, length-1);
+      expect(quill.setSelection).to.have.been.called.with(length - 1, length - 1);
     });
   });
 });
