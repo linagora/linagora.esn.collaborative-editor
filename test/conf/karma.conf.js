@@ -21,7 +21,7 @@ module.exports = function(config) {
       'frontend/components/ng-device-detector/ng-device-detector.js',
       'frontend/components/re-tree/re-tree.js',
       'frontend/components/angular-strap/dist/angular-strap.min.js',
-      'frontend/views/**/*.jade'
+      'frontend/views/**/*.pug'
     ],
 
     frameworks: ['mocha'],
@@ -32,10 +32,24 @@ module.exports = function(config) {
     reporters: ['coverage', 'spec'],
     preprocessors: {
       'frontend/js/**/*.js': ['coverage'],
-      'frontend/views/**/*.jade': ['ng-jade2module']
+      'frontend/views/**/*.pug': ['ng-jade2module']
 
     },
     ngJade2ModulePreprocessor: {
+      cacheIdFromPath: function(filepath) {
+        var cacheId = '';
+
+        console.log('RENAUD');
+        console.log(filepath);
+
+        if (filepath.match(/^frontend*/)) {
+          cacheId = '/editor' + filepath.substr(8).replace('.pug', '.html');
+        }
+
+        console.log(cacheId);
+
+        return cacheId;
+      },
       stripPrefix: 'frontend/',
       prependPrefix: '/editor/',
 

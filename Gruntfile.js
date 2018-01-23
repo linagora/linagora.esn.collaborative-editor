@@ -46,7 +46,7 @@ module.exports = function(grunt) {
         }
       },
       main: {
-        src: ['frontend/views/**/*.jade'],
+        src: ['frontend/views/**/*.pug'],
         dest: 'src/js/templates.js'
       }
     },
@@ -81,6 +81,21 @@ module.exports = function(grunt) {
       },
       quick: {
         src: ['<%= jshint.quick.src %>']
+      }
+    },
+    puglint: {
+      all: {
+        options: {
+          config: {
+            disallowAttributeInterpolation: true,
+            disallowLegacyMixinCall: true,
+            validateExtensions: true,
+            validateIndentation: 2
+          }
+        },
+        src: [
+          'frontend/**/*.pug'
+        ]
       }
     },
     run_grunt: {
@@ -134,6 +149,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-gjslint');
   grunt.loadNpmTasks('grunt-lint-pattern');
+  grunt.loadNpmTasks('grunt-puglint');
   grunt.loadNpmTasks('grunt-run-grunt');
   grunt.loadNpmTasks('grunt-html2js');
 
@@ -141,7 +157,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test-frontend', ['run_grunt:frontend']);
   grunt.registerTask('test', ['linters', 'run_grunt:frontend']);
-  grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'gjslint:all', 'lint_pattern:all']);
+  grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'gjslint:all', 'lint_pattern:all', 'puglint:all']);
   grunt.registerTask('templates', ['html2js']);
 
   /**
