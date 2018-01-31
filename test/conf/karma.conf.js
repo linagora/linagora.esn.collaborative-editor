@@ -39,14 +39,9 @@ module.exports = function(config) {
       cacheIdFromPath: function(filepath) {
         var cacheId = '';
 
-        console.log('RENAUD');
-        console.log(filepath);
-
         if (filepath.match(/^frontend*/)) {
           cacheId = '/editor' + filepath.substr(8).replace('.pug', '.html');
         }
-
-        console.log(cacheId);
 
         return cacheId;
       },
@@ -64,7 +59,7 @@ module.exports = function(config) {
       'karma-mocha',
       'karma-coverage',
       'karma-spec-reporter',
-      'karma-ng-jade2module-preprocessor'
+      '@linagora/karma-ng-jade2module-preprocessor'
     ],
 
     junitReporter: {

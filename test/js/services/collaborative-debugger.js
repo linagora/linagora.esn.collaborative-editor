@@ -1,4 +1,5 @@
 'use strict';
+
 /* global chai */
 
 var expect = chai.expect;
@@ -15,7 +16,7 @@ describe('The collaborative debugger', function() {
       }
     },
     connectorMock = {
-      whenSynced: function() {},
+      whenSynced: angular.noop,
       addMessageListener: function(callback) {
         messageListeners.push(callback);
       },
@@ -26,7 +27,6 @@ describe('The collaborative debugger', function() {
     currentConferenceStateMock = {},
     modalMock;
 
-
   beforeEach(function() {
     angular.mock.module('collaborativeDebugger');
     angular.mock.module('jadeTemplates');
@@ -35,10 +35,11 @@ describe('The collaborative debugger', function() {
   beforeEach(function() {
     angular.mock.module(function($provide) {
       var emptyFun = function() {
-        return function() {};
+        return angular.noop;
       };
-      $provide.service('yjsService', function () {
-        return{
+
+      $provide.service('yjsService', function() {
+        return {
           y: yMock,
           connector: connectorMock
         };
@@ -101,7 +102,6 @@ describe('The collaborative debugger', function() {
         // How can I test it?
       });
 
-
       it('should use quill to convert into HTML', function() {
         var got = contentsToHtml(content);
 
@@ -160,7 +160,7 @@ describe('The collaborative debugger', function() {
           yMock.val = function() {
             return {
               getDelta: function() {
-                return content.ops ;
+                return content.ops;
               }
             };
           };
@@ -179,6 +179,7 @@ describe('The collaborative debugger', function() {
               expect(error).to.equal('Editor object does no exist');
               done();
             };
+
           yMock.val = function() {
             return undefined;
           };
@@ -190,6 +191,7 @@ describe('The collaborative debugger', function() {
 
       describe('getRemote', function() {
         var peer = 'some peer id', source = 'yjs';
+
         beforeEach(function() {
           easyRTCService.setPeerListener = chai.spy();
           easyRTCService.sendData = chai.spy();
@@ -203,6 +205,7 @@ describe('The collaborative debugger', function() {
 
         it('should resolve on successful DEBUG_MESSAGE.reply ', function(done) {
           var resolve, reject;
+
           easyRTCService.setPeerListener = chai.spy(function(listener) {
             listener(null, null, {content: 'foo'});
           });
@@ -214,6 +217,7 @@ describe('The collaborative debugger', function() {
             done('Should not have been called');
           };
           var promise = contentGetters.getRemote(peer, source);
+
           promise().then(resolve, reject);
 
           $rootScope.$digest();
@@ -221,6 +225,7 @@ describe('The collaborative debugger', function() {
 
         it('should reject on non-successful DEBUG_MESSAGE.reply ', function(done) {
           var reject, resolve;
+
           easyRTCService.setPeerListener = chai.spy(function(listener) {
             listener(null, null, {error: 'foo'});
           });
@@ -232,6 +237,7 @@ describe('The collaborative debugger', function() {
             done('Should not have been called');
           };
           var promise = contentGetters.getRemote(peer, source);
+
           promise().then(resolve, reject);
 
           $rootScope.$digest();
@@ -243,6 +249,7 @@ describe('The collaborative debugger', function() {
           };
           var promise = contentGetters.getRemote(peer, source);
           var resolve = function() { done();};
+
           promise().then(resolve);
 
           expect(easyRTCService.sendData).to.have.been.called.with(peer, DEBUG_MESSAGE.ask, source);
@@ -255,14 +262,15 @@ describe('The collaborative debugger', function() {
     describe('collabDebugger', function() {
       it('should expose a peers function', function() {
         connectorMock.connections = {
-          'foo': {
+          foo: {
             is_synced: true
           },
-          'bar': {
+          bar: {
             is_synced: false
           }
         };
         var peers = collabDebugger.peers();
+
         expect(peers).to.be.an('array');
         expect(peers.length).to.equal(2);
         expect(peers[0]).to.have.property('is_synced', true);
@@ -304,16 +312,16 @@ describe('The collaborative debugger', function() {
             strResolve = 'This is a test',
             strReject = 'This is another a test';
 
-          promiseResolve = function () {
+          promiseResolve = function() {
             return {
-              then: function (resolve, reject) {
+              then: function(resolve) {
                 resolve(strResolve);
               }
             };
           };
-          promiseReject = function () {
+          promiseReject = function() {
             return {
-              then: function (resolve, reject) {
+              then: function(resolve, reject) {
                 reject(strReject);
               }
             };
@@ -355,13 +363,13 @@ describe('The collaborative debugger', function() {
   });
 
   describe('The directive', function() {
-    var scope, $rootScope, element, $modal, localScope, modalScope, collabDebug;
+    var scope, $rootScope, element, localScope, modalScope, collabDebug;
+
     describe('collabDebugLauncher', function() {
 
-      beforeEach(angular.mock.inject(function(_$rootScope_, _$modal_, $compile, _collabDebugger_) {
+      beforeEach(angular.mock.inject(function(_$rootScope_, $compile, _collabDebugger_) {
         $rootScope = _$rootScope_;
         scope = $rootScope.$new();
-        $modal = _$modal_;
         collabDebug = _collabDebugger_;
 
         element = angular.element('<collab-debug-launcher ng-click="onClick()"></collab-debug-launcher>');
@@ -384,8 +392,8 @@ describe('The collaborative debugger', function() {
         collabDebug.yjs = {
           val: function() {
             return {
-              'foo': null,
-              'bar': null
+              foo: null,
+              bar: null
             };
           }
         };
@@ -437,6 +445,7 @@ describe('The collaborative debugger', function() {
 
       describe('toggleCompareOwnAndRemote', function() {
         var peerId, source;
+
         beforeEach(function() {
           element.click();
           peerId = 'abcdefg';
@@ -467,6 +476,7 @@ describe('The collaborative debugger', function() {
           var fail = function() {
             modalScope.toggleCompareOwnAndRemote();
           };
+
           expect(fail).to.throw(/missing first argument/);
 
           fail = function() {
@@ -484,10 +494,10 @@ describe('The collaborative debugger', function() {
 
     describe('compareLocalAndAllRemote', function() {
       var peerList;
-      beforeEach(angular.mock.inject(function(_$rootScope_, _$modal_, $compile, _collabDebugger_) {
+
+      beforeEach(angular.mock.inject(function(_$rootScope_, $compile, _collabDebugger_) {
         $rootScope = _$rootScope_;
         scope = $rootScope.$new();
-        $modal = _$modal_;
         collabDebugger = _collabDebugger_;
 
         peerList = [
@@ -522,8 +532,8 @@ describe('The collaborative debugger', function() {
             }
           };
         };
-        beforeEach(function() {
 
+        beforeEach(function() {
           contentGetters.yjs = chai.spy();
           contentGetters.quill = chai.spy(fakePromise('abcd'));
           contentGetters.yjs = chai.spy(fakePromise('abcd'));

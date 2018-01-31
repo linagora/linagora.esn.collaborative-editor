@@ -5,7 +5,6 @@
 var expect = chai.expect;
 
 describe('Collaborative editor services', function() {
-  var scope, $rootScope, $compile;
   var eventCallbackService = {}, onCallback = {}, quillOnCallback, quillOnEvent;
   var charactersCb, editorObject, yCb;
 
@@ -23,18 +22,18 @@ describe('Collaborative editor services', function() {
           cb({
             Markdown: 'Markdown',
             'Raw text': 'Raw text',
-            'PDF': 'PDF'
+            PDF: 'PDF'
           });
         }
       };
     }
   };
 
-  beforeEach(function () {
+  beforeEach(function() {
     module('collaborative-editor');
     module('jadeTemplates');
-    module(function ($provide) {
-      $provide.service('yjsService', function () {
+    module(function($provide) {
+      $provide.service('yjsService', function() {
         editorObject = {
           _model: {
             getContent: function() {
@@ -51,7 +50,8 @@ describe('Collaborative editor services', function() {
         };
 
         var messageListeners = [];
-        return  {
+
+        return {
           y: {
             val: function() {
               return editorObject;
@@ -71,11 +71,11 @@ describe('Collaborative editor services', function() {
           }
         };
       });
-      $provide.value('currentConferenceState', function (){
+      $provide.value('currentConferenceState', function() {
         return function() {};
       });
 
-      $provide.value('attendeeColorsService', function () {
+      $provide.value('attendeeColorsService', function() {
         return true;
       });
 
@@ -86,6 +86,7 @@ describe('Collaborative editor services', function() {
       });
       $provide.value('contentGetters', {});
       function Quill() {
+
         return true;
       }
       Quill.events = {
@@ -102,12 +103,6 @@ describe('Collaborative editor services', function() {
       eventCallbackService.off = chai.spy(function() {});
     });
   });
-
-  beforeEach(inject(function (_$rootScope_, _$compile_) {
-    $rootScope = _$rootScope_;
-    $compile = _$compile_;
-    scope = $rootScope.$new();
-  }));
 
   describe('saverFactory', function() {
     var saverFactory;
@@ -130,6 +125,7 @@ describe('Collaborative editor services', function() {
 
     it('should have working register, unregister and get', function() {
       var initialLength;
+
       expect(saverFactory.get()).to.be.an('array');
 
       initialLength = saverFactory.get().length;
@@ -144,6 +140,7 @@ describe('Collaborative editor services', function() {
 
   describe('properties', function() {
     var propertiesA, propertiesB;
+
     beforeEach(inject(function(_properties_) {
       propertiesA = _properties_;
       propertiesB = _properties_;
@@ -157,6 +154,7 @@ describe('Collaborative editor services', function() {
 
   describe('editorFactory', function() {
     var editorFactory;
+
     beforeEach(inject(function(_editorFactory_, $window) {
       editorFactory = _editorFactory_;
       $window.Quill = function() {
@@ -182,6 +180,7 @@ describe('Collaborative editor services', function() {
 
       _$window_.Quill = function() {
         this.attachProvider = chai.spy();
+
         return this;
       };
 
@@ -198,6 +197,7 @@ describe('Collaborative editor services', function() {
 
   describe('bindEditorService', function() {
     var bindEditorService, connector, y, $window;
+
     beforeEach(inject(function(_bindEditorService_, _$window_) {
       var whenSyncedCallback;
 
@@ -221,6 +221,7 @@ describe('Collaborative editor services', function() {
       $window.Y = {
         RichText: function() {
           this.attachProvider = chai.spy();
+
           return this;
         }
       };
@@ -250,6 +251,7 @@ describe('Collaborative editor services', function() {
       y.val = chai.spy(function() {
         richText = richText || new $window.Y.RichText();
         richText.bind = richText.bind || chai.spy();
+
         return richText;
       });
 
@@ -269,12 +271,11 @@ describe('Collaborative editor services', function() {
   });
 
   describe('collaborativeEditorDriver', function() {
-    var collaborativeEditorDriver, properties, yjsService;
+    var collaborativeEditorDriver, properties;
 
-    beforeEach(inject(function(_collaborativeEditorDriver_, _properties_, _yjsService_) {
+    beforeEach(inject(function(_collaborativeEditorDriver_, _properties_) {
       collaborativeEditorDriver = _collaborativeEditorDriver_;
       properties = _properties_;
-      yjsService = _yjsService_;
 
       properties.paneSize = {
         width: 0,
@@ -424,6 +425,7 @@ describe('Collaborative editor services', function() {
 
     it('The eventCallbackService conferenceleft listener should return an object when there is unsaved modification', function() {
       var callback;
+
       properties.newNotification = true;
       callback = onCallback.conferenceleft();
 
